@@ -1,4 +1,4 @@
-import Mathlib.Tatic.Lemma
+import Mathlib.Tactic.Lemma
 -- import YoungDiagram.Basic
 
 -- import Mathlib.Combinatorics.Young.YoungDiagram
