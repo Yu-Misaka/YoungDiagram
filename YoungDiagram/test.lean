@@ -11,7 +11,7 @@ deriving DecidableEq, Repr
 structure Gene where
   rank : ℕ
   type : GeneType
-  rank_pos : 1 ≤ rank
+  rank_pos : 1 ≤ rank := by decide
 deriving DecidableEq, Repr
 
 section polarized
@@ -25,15 +25,15 @@ abbrev List.isAlt {l : List Bool} (hl : l ≠ [] := by decide) : Prop :=
 #eval [true, false, true].isAlt
 #eval [false, true, false].isAlt
 
-def List.toGen {l : List Bool} (hl : l ≠ [] := by decide)
+def List.toGene {l : List Bool} (hl : l ≠ [] := by decide)
     (_ : l.isAlt hl := by decide) : Gene :=
   --                ↓ head or last?
   ⟨l.length, if l.getLast hl = true then .Positive else .Negative, List.length_pos_iff.2 hl⟩
 
-#eval [true].toGen
-#eval [true, false].toGen
-#eval [true, false, true].toGen
-#eval [false, true, false].toGen
+#eval [true].toGene
+#eval [true, false].toGene
+#eval [true, false, true].toGene
+#eval [false, true, false].toGene
 
 def Gene.toList {g : Gene} (_ : g.type ≠ .NonPolarized := by decide) : List Bool :=
   List.iterate not
@@ -41,10 +41,10 @@ def Gene.toList {g : Gene} (_ : g.type ≠ .NonPolarized := by decide) : List Bo
     g.rank |>.reverse
     --          ↑ head or last?
 
-#eval [true].toGen.toList
-#eval [true, false].toGen.toList
-#eval [true, false, true].toGen.toList
-#eval [false, true, false].toGen.toList
+#eval [true].toGene.toList
+#eval [true, false].toGene.toList
+#eval [true, false, true].toGene.toList
+#eval [false, true, false].toGene.toList
 
 def Gene.Signature (g : Gene) : ℚ × ℚ :=
   match hg : g.type with
@@ -60,10 +60,10 @@ def Gene.Signature (g : Gene) : ℚ × ℚ :=
       (not_eq_of_beq_eq_false rfl)
     (l.count true, l.count false)
 
-#eval [true].toGen.Signature
-#eval [true, false].toGen.Signature
-#eval [true, false, true].toGen.Signature
-#eval [false, true, false].toGen.Signature
+#eval [true].toGene.Signature
+#eval [true, false].toGene.Signature
+#eval [true, false, true].toGene.Signature
+#eval [false, true, false].toGene.Signature
 
 def geneSignature (g : Gene) : ℚ × ℚ :=
   let n : ℚ := g.rank
@@ -76,10 +76,10 @@ def geneSignature (g : Gene) : ℚ × ℚ :=
       if g.rank % 2 == 0 then (n / 2, n / 2)
       else ((n - 1) / 2, (n + 1) / 2)
 
-#eval geneSignature [true].toGen
-#eval geneSignature [true, false].toGen
-#eval geneSignature [true, false, true].toGen
-#eval geneSignature [false, true, false].toGen
+#eval geneSignature [true].toGene
+#eval geneSignature [true, false].toGene
+#eval geneSignature [true, false, true].toGene
+#eval geneSignature [false, true, false].toGene
 
 end polarized
 
@@ -97,6 +97,30 @@ noncomputable def primeGene (g : Gene) : Chromosome :=
 
 noncomputable def prime (c : Chromosome) : Chromosome :=
   c.sum (fun g m ↦ m • primeGene g)
+
+lemma single_prime_it_pred_rank (g : Gene) :
+    prime^[g.rank - 1] (single g 1) = single ⟨1, g.type, NeZero.one_le⟩ 1 := by
+  induction hg : g.rank using Nat.strong_induction_on generalizing g
+  expose_names
+  by_cases hn : n = 1
+  · subst hn; simp [← hg]
+  have rank_pos := g.rank_pos
+  specialize h (n - 1) (by omega) ⟨g.rank - 1, g.type, by omega⟩
+  simp [hg] at h
+  rw [show n - 1 = n - 1 - 1 + 1 by omega, Function.iterate_succ_apply]
+  simp [prime, primeGene, show 1 < g.rank by omega]
+  simp_rw [hg, h]
+
+lemma single_prime_it_rank (g : Gene) :
+    prime^[g.rank] (single g 1) = 0 := by
+  rw [(Nat.sub_eq_iff_eq_add g.rank_pos).mp rfl, add_comm,
+    Function.iterate_add_apply, single_prime_it_pred_rank]
+  simp [prime, primeGene]
+
+lemma single_prime_it_rank_le (g : Gene) {k : ℕ} (hk : g.rank ≤ k) :
+    prime^[k] (single g 1) = 0 := by
+  rw [(Nat.sub_eq_iff_eq_add hk).mp rfl, Function.iterate_add_apply,
+    single_prime_it_rank, Function.iterate_fixed rfl]
 
 def dominates (X Y : Chromosome) : Prop :=
   ∀ k : ℕ, signature (prime^[k] Y) ≤ signature (prime^[k] X)
@@ -161,6 +185,10 @@ open Pointwise
 #check Mix (Pi, 2 • Lambda)
 
 #synth SMul ℕ variety
+
+instance : PartialOrder Pi where
+  le_antisymm a b hab hba := by
+    sorry
 
 end Chromosome
 
