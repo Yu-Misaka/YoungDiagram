@@ -47,6 +47,27 @@ inductive GeneType
   | Negative
 deriving DecidableEq, Repr
 
+instance : Neg GeneType where
+  neg
+    | .NonPolarized => .NonPolarized
+    | .Positive => .Negative | .Negative => .Positive
+
+instance : SMul ℤ GeneType where
+  smul n ε := if n = - 1 then - ε else ε
+
+@[simp]
+lemma GeneType.neg_one_smul {ε : GeneType} : - 1 • ε = - ε := rfl
+
+@[simp]
+lemma GeneType.one_smul {ε : GeneType} : (1 : ℤ) • ε = ε := rfl
+
+@[simp]
+lemma GeneType.neg_one_pow_smul {n : ℕ} {ε : GeneType} :
+    (- 1) ^ n • ε = if Even n then ε else - ε := by
+  split_ifs with h
+  · simp [h]
+  · simp [Nat.not_even_iff_odd.1 h]
+
 /--
 A gene is an isomorphism class of strings, defined by its rank (size) and type.
 See [Djoković 1980, p. 72]. The rank must be at least 1.
@@ -137,7 +158,21 @@ Formalized as `Finsupp` (finite support functions) from `Gene` to `ℕ`.
 -/
 abbrev Chromosome := Gene →₀ ℕ
 
+noncomputable abbrev Gene.ofRank (n : ℕ) (ε : GeneType) : Chromosome :=
+  if h : n = 0 then 0
+  else single ⟨n, ε, Nat.pos_of_ne_zero h⟩ 1
+
+noncomputable abbrev Gene.ofRank' (n : ℕ) (ε : GeneType) : Chromosome :=
+  Gene.ofRank n ((- 1) ^ (n - 1) • ε)
+
+@[simp]
+lemma Gene.ofRank_def {n : ℕ} {ε : GeneType} :
+  Gene.ofRank n ε = if h : n = 0 then 0
+    else single ⟨n, ε, Nat.pos_of_ne_zero h⟩ 1 := rfl
+
 namespace Chromosome
+
+section signature
 
 /--
 The signature of a chromosome is the weighted sum of the signatures of its constituent genes.
@@ -145,15 +180,23 @@ The signature of a chromosome is the weighted sum of the signatures of its const
 def signature (c : Chromosome) : ℚ × ℚ :=
   c.sum (fun g count ↦ (count : ℚ) • g.Signature)
 
+@[simp]
+lemma signature_add (X Y : Chromosome) :
+    (X + Y).signature = X.signature + Y.signature := by
+  simp [signature]
+  refine Finsupp.sum_add_index' ?_ ?_
+  · simp
+  intro a b₁ b₂
+  simp only [Nat.cast_add]
+  exact Module.add_smul _ _ a.Signature
+
 /--
 The "prime" operation on a single gene $g$, denoted $g'$ in [Djoković 1980, (8.2)].
 * If $g$ has rank $> 1$, $g'$ is a gene of the same type with rank $n-1$.
 * If $g$ has rank $1$, $g'$ is the zero chromosome.
 -/
 noncomputable def primeGene (g : Gene) : Chromosome :=
-  if h : 1 < g.rank then
-    single ⟨g.rank - 1, g.type, Nat.le_sub_one_of_lt h⟩ 1
-  else 0
+  Gene.ofRank (g.rank - 1) g.type
 
 /--
 The "prime" operation extended linearly to all chromosomes: $X' = \sum m_i g_i'$.
@@ -162,11 +205,26 @@ This operation corresponds to taking the derivative of the chromosome.
 noncomputable def prime (c : Chromosome) : Chromosome :=
   c.sum (fun g m ↦ m • primeGene g)
 
+@[simp]
+lemma prime_add (X Y : Chromosome) : prime (X + Y) = prime X + prime Y := by
+  simp [prime]
+  refine Finsupp.sum_add_index' ?_ ?_
+  · simp
+  intro a b₁ b₂
+  exact add_nsmul (primeGene a) b₁ b₂
+
+@[simp]
+lemma prime_it_add (X Y : Chromosome) (k : ℕ) :
+    prime^[k] (X + Y) = prime^[k] X + prime^[k] Y := by
+  induction k generalizing X Y with
+  | zero => simp
+  | succ n hn => simp [hn]
+
 /--
 Applying the prime operation $n-1$ times to a gene of rank $n$ results in a gene of rank 1.
 -/
 lemma single_prime_it_pred_rank (g : Gene) :
-    prime^[g.rank - 1] (single g 1) = single ⟨1, g.type, NeZero.one_le⟩ 1 := by
+    prime^[g.rank - 1] (single g 1) = Gene.ofRank 1 g.type := by
   induction hg : g.rank using Nat.strong_induction_on generalizing g
   expose_names
   by_cases hn : n = 1
@@ -175,7 +233,7 @@ lemma single_prime_it_pred_rank (g : Gene) :
   specialize h (n - 1) (by omega) ⟨g.rank - 1, g.type, by omega⟩
   simp [hg] at h
   rw [show n - 1 = n - 1 - 1 + 1 by omega, Function.iterate_succ_apply]
-  simp [prime, primeGene, show 1 < g.rank by omega]
+  simp [prime, primeGene, show g.rank - 1 ≠ 0 by omega]
   simp_rw [hg, h]
 
 /--
@@ -195,6 +253,8 @@ lemma single_prime_it_rank_le (g : Gene) {k : ℕ} (hk : g.rank ≤ k) :
   rw [(Nat.sub_eq_iff_eq_add hk).mp rfl, Function.iterate_add_apply,
     single_prime_it_rank, Function.iterate_fixed rfl]
 
+end signature
+
 /--
 The dominance relation defined in [Djoković 1980, p. 73].
 $X$ dominates $Y$ ($X \ge Y$) if the signature of $X^{(k)}$ is
@@ -204,15 +264,20 @@ the signature of $Y^{(k)}$ for all $k \ge 0$.
 def dominates (X Y : Chromosome) : Prop :=
   ∀ k : ℕ, signature (prime^[k] Y) ≤ signature (prime^[k] X)
 
+instance : LE Chromosome where
+  le a b := b.dominates a
+
 /--
 The dominance relation forms a preorder on the set of all chromosomes.
-Note: It is a partial order only when restricted to specific varieties.
 -/
 instance : Preorder Chromosome where
-  le a b := b.dominates a
   le_refl a _ := le_refl _
   lt a b := b.dominates a ∧ ¬a.dominates b
   le_trans _ _ _ hab hbc k := le_trans (hab k) (hbc k)
+
+@[simp]
+lemma le_iff_dominates {X Y : Chromosome} : X ≤ Y ↔ Y.dominates X :=
+  Eq.to_iff rfl
 
 /-- The odd part of a chromosome $o(X)$, containing only genes of odd rank. -/
 abbrev o (c : Chromosome) : Chromosome := c.filter (Odd  ·.rank)
@@ -289,5 +354,37 @@ def Mix (v : variety × variety) : variety where
     exact ⟨add_mem ha.1 hb.1, add_mem ha.2 hb.2⟩
   zero_mem' := by
     simp [o, e, filter_zero]
+
+structure IsMutation (X Y : Chromosome) : Prop where
+  le : X ≤ Y
+  ne : X ≠ Y
+  sign_eq : signature X = signature Y
+
+inductive PrimitiveMutation : Chromosome → Chromosome → Prop
+  | type_1 {ε : GeneType} {hε : ε ≠ .NonPolarized}
+    {m n : ℕ} (h_le : m ≤ n) (h_m : 1 ≤ m) :
+      PrimitiveMutation
+        (Gene.ofRank m ε + Gene.ofRank n (- ε))
+        (Gene.ofRank (m - 1) (- ε) + Gene.ofRank (n + 1) ε)
+  | type_2 {ε : GeneType} {hε : ε ≠ .NonPolarized}
+    {m n : ℕ} (h_le : m ≤ n) (h_m : 1 < m) :
+      PrimitiveMutation
+        (Gene.ofRank m ε + Gene.ofRank n (- ε))
+        (Gene.ofRank (m - 2) ε + Gene.ofRank (n + 2) ε)
+  | type_3 {ε : GeneType} {hε : ε ≠ .NonPolarized}
+    {m n : ℕ} (h_le : m ≤ n) (h_m : 1 ≤ m) :
+      PrimitiveMutation
+        (Gene.ofRank' m ε + Gene.ofRank' n (- ε))
+        (Gene.ofRank' (m - 1) ε + Gene.ofRank' (n + 1) (- ε))
+
+lemma type_1_is_mutation {ε : GeneType} {hε : ε ≠ .NonPolarized}
+  {m n : ℕ} (h_le : m ≤ n) (h_m : 1 ≤ m) :
+    IsMutation
+      (Gene.ofRank m ε + Gene.ofRank n (- ε))
+      (Gene.ofRank (m - 1) (- ε) + Gene.ofRank (n + 1) ε) where
+  le := by
+    sorry
+  ne := sorry
+  sign_eq := sorry
 
 end Chromosome
