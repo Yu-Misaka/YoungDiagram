@@ -276,8 +276,18 @@ instance : Preorder Chromosome where
   le_trans _ _ _ hab hbc k := le_trans (hab k) (hbc k)
 
 @[simp]
-lemma le_iff_dominates {X Y : Chromosome} : X ≤ Y ↔ Y.dominates X :=
-  Eq.to_iff rfl
+lemma le_iff_dominates {X Y : Chromosome} : X ≤ Y ↔
+  ∀ k : ℕ, signature (prime^[k] X) ≤ signature (prime^[k] Y) := .rfl
+
+instance : AddRightMono Chromosome where
+  elim := by
+    dsimp [Covariant, Function.swap_def]
+    intros; simpa
+
+instance : AddRightReflectLE Chromosome where
+  elim := by
+    dsimp [Contravariant]
+    intro _ _ _ h; simpa using h
 
 /-- The odd part of a chromosome $o(X)$, containing only genes of odd rank. -/
 abbrev o (c : Chromosome) : Chromosome := c.filter (Odd  ·.rank)
@@ -354,37 +364,5 @@ def Mix (v : variety × variety) : variety where
     exact ⟨add_mem ha.1 hb.1, add_mem ha.2 hb.2⟩
   zero_mem' := by
     simp [o, e, filter_zero]
-
-structure IsMutation (X Y : Chromosome) : Prop where
-  le : X ≤ Y
-  ne : X ≠ Y
-  sign_eq : signature X = signature Y
-
-inductive PrimitiveMutation : Chromosome → Chromosome → Prop
-  | type_1 {ε : GeneType} {hε : ε ≠ .NonPolarized}
-    {m n : ℕ} (h_le : m ≤ n) (h_m : 1 ≤ m) :
-      PrimitiveMutation
-        (Gene.ofRank m ε + Gene.ofRank n (- ε))
-        (Gene.ofRank (m - 1) (- ε) + Gene.ofRank (n + 1) ε)
-  | type_2 {ε : GeneType} {hε : ε ≠ .NonPolarized}
-    {m n : ℕ} (h_le : m ≤ n) (h_m : 1 < m) :
-      PrimitiveMutation
-        (Gene.ofRank m ε + Gene.ofRank n (- ε))
-        (Gene.ofRank (m - 2) ε + Gene.ofRank (n + 2) ε)
-  | type_3 {ε : GeneType} {hε : ε ≠ .NonPolarized}
-    {m n : ℕ} (h_le : m ≤ n) (h_m : 1 ≤ m) :
-      PrimitiveMutation
-        (Gene.ofRank' m ε + Gene.ofRank' n (- ε))
-        (Gene.ofRank' (m - 1) ε + Gene.ofRank' (n + 1) (- ε))
-
-lemma type_1_is_mutation {ε : GeneType} {hε : ε ≠ .NonPolarized}
-  {m n : ℕ} (h_le : m ≤ n) (h_m : 1 ≤ m) :
-    IsMutation
-      (Gene.ofRank m ε + Gene.ofRank n (- ε))
-      (Gene.ofRank (m - 1) (- ε) + Gene.ofRank (n + 1) ε) where
-  le := by
-    sorry
-  ne := sorry
-  sign_eq := sorry
 
 end Chromosome
