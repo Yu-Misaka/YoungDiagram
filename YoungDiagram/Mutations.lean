@@ -19,6 +19,10 @@ lemma IsMutation_of_add {X Y Z : Chromosome}
   ne := by simpa using h.ne
   sign_eq := by simpa using h.sign_eq
 
+lemma IsMutation_iff_add {X Y Z : Chromosome} :
+    IsMutation (X + Z) (Y + Z) ↔ IsMutation X Y :=
+  ⟨IsMutation_of_add, IsMutation_add Z⟩
+
 section type_1_isMutation
 
 lemma type_1_is_mutation_ne {ε : GeneType}
