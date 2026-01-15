@@ -67,19 +67,19 @@ lemma signature_ofRank_nonpol {n : ℕ} :
   · rw [signature_eq_nonpolarized rfl]; rfl
 
 lemma signature_ofRank_swap {n : ℕ} {ε : GeneType} :
-    (Gene.ofRank n ε).signature = (Gene.ofRank n (- ε)).signature.swap := by
+    (Gene.ofRank n (- ε)).signature = (Gene.ofRank n ε).signature.swap := by
   cases ε
   · exact signature_ofRank_nonpol
   · simp
     split_ifs
     · rfl
-    · rw [signature_eq_pos rfl, signature_eq_neg rfl]
+    · rw [signature_eq_neg rfl, signature_eq_pos rfl]
       simp only
       split_ifs <;> rfl
   · simp
     split_ifs
     · rfl
-    · rw [signature_eq_neg rfl, signature_eq_pos rfl]
+    · rw [signature_eq_pos rfl, signature_eq_neg rfl]
       simp only
       split_ifs <;> rfl
 
@@ -105,8 +105,8 @@ lemma signature_it_ofRank_pos {k : ℕ} (hk : 1 ≤ k) :
 lemma signature_it_ofRank_neg {k : ℕ} (hk : 1 ≤ k) :
     (Gene.ofRank k .Negative).signature =
     (Gene.ofRank (k - 1) .Positive).signature + (0, 1) := by
-  rw [signature_ofRank_swap, GeneType.neg_neg_eq_pos,
-    signature_it_ofRank_pos hk, Prod.swap_add, signature_ofRank_swap]
+  rw [← GeneType.neg_pos_eq_neg, signature_ofRank_swap,
+    signature_it_ofRank_pos hk, Prod.swap_add, ← signature_ofRank_swap]
   rfl
 
 /--

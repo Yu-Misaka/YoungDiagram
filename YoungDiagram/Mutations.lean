@@ -64,15 +64,20 @@ lemma type_1_is_mutation_ne {ε : GeneType}
         omega
     omega
 
-lemma signature_it_signle_neg {k : ℕ} (hk : 1 ≤ k) :
-  (Gene.ofRank k .Negative).signature = (Gene.ofRank (k - 1) .Positive).signature + (0, 1) := sorry
-
 lemma type_1_is_mutation_sign_eq {ε : GeneType} {hε : ε ≠ .NonPolarized}
   {m n : ℕ} (h_le : m ≤ n) (hm : 1 ≤ m) :
     (Gene.ofRank m ε + Gene.ofRank n (- ε)).signature =
     (Gene.ofRank (m - 1) (- ε) + Gene.ofRank (n + 1) ε).signature := by
-
-  sorry
+  cases ε
+  · tauto
+  · rw [signature_add, signature_add, signature_it_ofRank_pos hm,
+      signature_it_ofRank_pos (Nat.le_add_right_of_le <| hm.trans h_le),
+      Nat.add_sub_cancel]
+    ac_rfl
+  · rw [signature_add, signature_add, signature_it_ofRank_neg hm,
+      signature_it_ofRank_neg (Nat.le_add_right_of_le <| hm.trans h_le),
+      Nat.add_sub_cancel]
+    ac_rfl
 
 lemma type_1_is_mutation_le {ε : GeneType} {hε : ε ≠ .NonPolarized}
   {m n : ℕ} (h_le : m ≤ n) (hm : 1 ≤ m) :
