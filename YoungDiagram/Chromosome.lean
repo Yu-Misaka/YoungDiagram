@@ -58,6 +58,31 @@ def signature (c : Chromosome) : ℚ × ℚ :=
     (⟨k, ε, hk⟩ : Gene).Signature := by
   simp [signature]
 
+lemma signature_ofRank_nonpol {n : ℕ} :
+    (Gene.ofRank n .NonPolarized).signature =
+    (Gene.ofRank n .NonPolarized).signature.swap := by
+  simp
+  split_ifs
+  · rfl
+  · rw [signature_eq_nonpolarized rfl]; rfl
+
+lemma signature_ofRank_swap {n : ℕ} {ε : GeneType} :
+    (Gene.ofRank n ε).signature = (Gene.ofRank n (- ε)).signature.swap := by
+  cases ε
+  · exact signature_ofRank_nonpol
+  · simp
+    split_ifs
+    · rfl
+    · rw [signature_eq_pos rfl, signature_eq_neg rfl]
+      simp only
+      split_ifs <;> rfl
+  · simp
+    split_ifs
+    · rfl
+    · rw [signature_eq_neg rfl, signature_eq_pos rfl]
+      simp only
+      split_ifs <;> rfl
+
 lemma signature_it_ofRank_pos {k : ℕ} (hk : 1 ≤ k) :
     (Gene.ofRank k .Positive).signature =
     (Gene.ofRank (k - 1) .Negative).signature + (1, 0) := by

@@ -14,6 +14,10 @@ instance : Neg GeneType where
 instance : SMul ℤ GeneType where
   smul n ε := if n = - 1 then - ε else ε
 
+@[simp] lemma GeneType.neg_pos_eq_neg : - GeneType.Positive = GeneType.Negative := rfl
+
+@[simp] lemma GeneType.neg_neg_eq_pos : - GeneType.Negative = GeneType.Positive := rfl
+
 @[simp] lemma GeneType.neg_one_smul {ε : GeneType} : - 1 • ε = - ε := rfl
 
 @[simp] lemma GeneType.one_smul {ε : GeneType} : (1 : ℤ) • ε = ε := rfl
