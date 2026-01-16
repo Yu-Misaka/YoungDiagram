@@ -49,7 +49,7 @@ lemma signature_nonneg (c : Chromosome) : 0 ≤ c.signature := by
 
 @[simp] lemma signature_ofRank_zero {ε : GeneType} :
     (Gene.ofRank 0 ε).signature = 0 := by
-  dsimp [signature, Gene.ofRank_def]
+  dsimp [signature]
 
 @[simp] lemma signature_ofRank {n : ℕ} {ε : GeneType} :
   (Gene.ofRank n ε).signature =
