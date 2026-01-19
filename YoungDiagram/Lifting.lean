@@ -26,8 +26,8 @@ lemma rankDecomposition (c : Chromosome) (k : ℕ) :
 
 lemma prime_elim (c : Chromosome) (k : ℕ) :
     prime^[k] c = prime^[k] (c.above k) := by
-  nth_rw 1 [rankDecomposition c k, ← zero_add (prime^[k] (c.above k)), iterate_map_add]
-  congr
+  nth_rw 1 [rankDecomposition c k]
+  simp only [iterate_map_add, add_eq_right]
   induction c using Finsupp.induction with
   | zero =>
     simp [below, filter_zero]
@@ -35,12 +35,14 @@ lemma prime_elim (c : Chromosome) (k : ℕ) :
     simp [below]
     by_cases hg_rank : g.rank ≤ k
     · rw [filter_single_of_pos, ← mul_one n, ← smul_single', iterate_map_nsmul]
-      · sorry
+      · refine ⟨?_, hf⟩
+        rw [IsAddTorsionFree.nsmul_eq_zero_iff, ← Gene.ofRank_eq_gene,
+          prime_ofRank_it, Nat.sub_eq_zero_of_le hg_rank, Gene.ofRank_zero]
+        exact Or.inl rfl
       exact hg_rank
-    rw [filter_single_of_neg]
-    · simp at hg
-      sorry
-    sorry
+    rw [filter_single_of_neg, iterate_map_zero]
+    · exact ⟨rfl, hf⟩
+    exact hg_rank
 
 end Chromosome
 

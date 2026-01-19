@@ -26,6 +26,13 @@ lemma Gene.ofRank_def {n : ℕ} {ε : GeneType} :
 
 @[simp] lemma Gene.ofRank_zero {ε : GeneType} : Gene.ofRank 0 ε = 0 := rfl
 
+lemma Gene.ofRank_eq_gene {g : Gene} :
+    Gene.ofRank g.rank g.type = single g 1 := by
+  rw [Gene.ofRank_def]
+  split_ifs with h
+  · absurd h; exact Nat.ne_zero_of_lt g.rank_pos
+  · rfl
+
 namespace Chromosome
 
 section signature
@@ -75,18 +82,12 @@ lemma signature_ofRank_swap {n : ℕ} {ε : GeneType} :
     (Gene.ofRank n (- ε)).signature = (Gene.ofRank n ε).signature.swap := by
   cases ε
   · exact signature_ofRank_nonpol
-  · simp
-    split_ifs
+  all_goals
+    simp; split_ifs
     · rfl
-    · rw [Gene.signature_eq_neg rfl, Gene.signature_eq_pos rfl]
-      simp only
-      split_ifs <;> rfl
-  · simp
-    split_ifs
-    · rfl
-    · rw [Gene.signature_eq_pos rfl, Gene.signature_eq_neg rfl]
-      simp only
-      split_ifs <;> rfl
+    · first | rw [Gene.signature_eq_neg rfl, Gene.signature_eq_pos rfl] |
+        rw [Gene.signature_eq_pos rfl, Gene.signature_eq_neg rfl]
+      simp only; split_ifs <;> rfl
 
 lemma signature_it_ofRank_pos {k : ℕ} (hk : 1 ≤ k) :
     (Gene.ofRank k .Positive).signature =
