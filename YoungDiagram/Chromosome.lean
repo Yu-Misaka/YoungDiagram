@@ -33,6 +33,10 @@ lemma Gene.ofRank_eq_gene {g : Gene} :
   · absurd h; exact Nat.ne_zero_of_lt g.rank_pos
   · rfl
 
+lemma Gene.ofRank_eq_gene' {g : Gene} {m : ℕ} :
+    m • Gene.ofRank g.rank g.type = single g m := by
+  rw [← mul_one m, ← smul_single', ofRank_eq_gene, mul_one]
+
 namespace Chromosome
 
 section signature
@@ -44,9 +48,9 @@ def signature : Chromosome →+ ℚ × ℚ where
   toFun c := c.sum (fun g count ↦ (count : ℚ) • g.signature)
   map_zero' := sum_zero_index
   map_add' _ _ := by
-    refine Finsupp.sum_add_index' (by simp) fun a _ _ ↦ ?_
+    refine Finsupp.sum_add_index' (by simp) fun _ _ _ ↦ ?_
     simp only [Nat.cast_add]
-    exact Module.add_smul _ _ a.signature
+    exact Module.add_smul ..
 
 lemma signature_nonneg (c : Chromosome) : 0 ≤ c.signature := by
   dsimp [signature]
@@ -134,8 +138,8 @@ This operation corresponds to taking the derivative of the chromosome.
 noncomputable def prime : Chromosome →+ Chromosome where
   toFun c := c.sum (fun g m ↦ m • primeGene g)
   map_zero' := sum_zero_index
-  map_add' _ _ := sum_add_index' (fun a ↦ zero_nsmul (primeGene a))
-    fun a _ _ ↦ add_nsmul (primeGene a) _ _
+  map_add' _ _ := sum_add_index' (fun _ ↦ zero_nsmul _)
+    fun _ _ _ ↦ add_nsmul ..
 
 lemma prime_ofRank {n : ℕ} {ε : GeneType} :
     (Gene.ofRank n ε).prime = Gene.ofRank (n - 1) ε := by
