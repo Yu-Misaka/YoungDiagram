@@ -116,6 +116,10 @@ lemma signature_it_ofRank_neg {k : ℕ} (hk : 1 ≤ k) :
     signature_it_ofRank_pos hk, Prod.swap_add, ← signature_ofRank_swap]
   rfl
 
+end signature
+
+section prime
+
 /--
 The "prime" operation on a single gene $g$, denoted $g'$ in [Djoković 1980, (8.2)].
 * If $g$ has rank $> 1$, $g'$ is a gene of the same type with rank $n-1$.
@@ -169,7 +173,9 @@ lemma prime_ofRank_it {k n : ℕ} {ε : GeneType} :
     rw [add_comm, Function.iterate_add_apply, Function.iterate_one, h, prime_ofRank]
     ac_rfl
 
-end signature
+end prime
+
+section order
 
 /--
 The dominance relation defined in [Djoković 1980, p. 73].
@@ -203,6 +209,10 @@ instance : AddRightReflectLE Chromosome where
   elim := by
     dsimp [Contravariant]
     intro _ _ _ h; simpa using h
+
+end order
+
+section variety
 
 /-- The odd part of a chromosome $o(X)$, containing only genes of odd rank. -/
 abbrev o (c : Chromosome) : Chromosome := c.filter (Odd  ·.rank)
@@ -277,5 +287,7 @@ def Mix (v : variety × variety) : variety where
     exact ⟨add_mem ha.1 hb.1, add_mem ha.2 hb.2⟩
   zero_mem' := by
     simp [o, e, filter_zero]
+
+end variety
 
 end Chromosome
