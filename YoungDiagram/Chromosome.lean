@@ -1,4 +1,7 @@
-import Mathlib
+import Mathlib.Algebra.Order.Monoid.Prod
+import Mathlib.Algebra.Star.Module
+import Mathlib.Analysis.Normed.Module.Basic
+import Mathlib.Data.Finsupp.Order
 import YoungDiagram.Gene
 
 open Finsupp
@@ -30,26 +33,21 @@ section signature
 /--
 The signature of a chromosome is the weighted sum of the signatures of its constituent genes.
 -/
-def signature (c : Chromosome) : ℚ × ℚ :=
-  c.sum (fun g count ↦ (count : ℚ) • g.signature)
+def signature : Chromosome →+ ℚ × ℚ where
+  toFun c := c.sum (fun g count ↦ (count : ℚ) • g.signature)
+  map_zero' := sum_zero_index
+  map_add' X Y := by
+    refine Finsupp.sum_add_index' (by simp) fun a _ _ ↦ ?_
+    simp only [Nat.cast_add]
+    exact Module.add_smul _ _ a.signature
 
 lemma signature_nonneg (c : Chromosome) : 0 ≤ c.signature := by
   dsimp [signature]
   exact sum_nonneg' fun g ↦
     smul_nonneg Rat.natCast_nonneg g.signature_nonneg
 
-@[simp] lemma signature_add (X Y : Chromosome) :
-    (X + Y).signature = X.signature + Y.signature := by
-  dsimp [signature]
-  refine Finsupp.sum_add_index' ?_ ?_
-  · simp
-  intro a _ _
-  simp only [Nat.cast_add]
-  exact Module.add_smul _ _ a.signature
-
 @[simp] lemma signature_ofRank_zero {ε : GeneType} :
-    (Gene.ofRank 0 ε).signature = 0 := by
-  dsimp [signature]
+    (Gene.ofRank 0 ε).signature = 0 := rfl
 
 @[simp] lemma signature_ofRank {n : ℕ} {ε : GeneType} :
   (Gene.ofRank n ε).signature =
@@ -132,31 +130,18 @@ noncomputable def primeGene (g : Gene) : Chromosome :=
 The "prime" operation extended linearly to all chromosomes: $X' = \sum m_i g_i'$.
 This operation corresponds to taking the derivative of the chromosome.
 -/
-noncomputable def prime (c : Chromosome) : Chromosome :=
-  c.sum (fun g m ↦ m • primeGene g)
-
-@[simp] lemma prime_zero : prime 0 = 0 := Finsupp.sum_zero_index
-
-@[simp] lemma prime_add (X Y : Chromosome) :
-    prime (X + Y) = prime X + prime Y := by
-  simp [prime]
-  refine Finsupp.sum_add_index' ?_ ?_
-  · simp
-  intro a b₁ b₂
-  exact add_nsmul (primeGene a) b₁ b₂
-
-@[simp] lemma prime_it_add (X Y : Chromosome) (k : ℕ) :
-    prime^[k] (X + Y) = prime^[k] X + prime^[k] Y := by
-  induction k generalizing X Y with
-  | zero => simp
-  | succ n hn => simp [hn]
+noncomputable def prime : Chromosome →+ Chromosome where
+  toFun := fun c ↦ c.sum (fun g m ↦ m • primeGene g)
+  map_zero' := sum_zero_index
+  map_add' X Y := sum_add_index' (by simp)
+    fun a _ _ ↦ add_nsmul (primeGene a) _ _
 
 lemma prime_ofRank {n : ℕ} {ε : GeneType} :
     (Gene.ofRank n ε).prime = Gene.ofRank (n - 1) ε := by
   by_cases hn : n = 0
   · simp [hn, Gene.ofRank_def]
   rw [prime, Gene.ofRank_def]
-  simp only [hn, ↓reduceDIte, zero_nsmul, sum_single_index, one_smul]
+  simp [hn]
   rfl
 
 lemma prime_ofRank_it {k n : ℕ} {ε : GeneType} :

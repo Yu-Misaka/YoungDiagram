@@ -1,4 +1,5 @@
 import YoungDiagram.Chromosome
+import Mathlib.Tactic
 
 open Chromosome
 
@@ -59,11 +60,11 @@ lemma type_1_is_mutation_sign_eq {ε : GeneType} (hε : ε ≠ .NonPolarized)
     (Gene.ofRank (m - 1) (- ε) + Gene.ofRank (n + 1) ε).signature := by
   cases ε
   · tauto
-  · rw [signature_add, signature_add, signature_it_ofRank_pos hm,
+  · rw [map_add, map_add, signature_it_ofRank_pos hm,
       signature_it_ofRank_pos (Nat.le_add_right_of_le <| hm.trans h_le),
       Nat.add_sub_cancel]
     ac_rfl
-  · rw [signature_add, signature_add, signature_it_ofRank_neg hm,
+  · rw [map_add, map_add, signature_it_ofRank_neg hm,
       signature_it_ofRank_neg (Nat.le_add_right_of_le <| hm.trans h_le),
       Nat.add_sub_cancel]
     ac_rfl
@@ -73,10 +74,10 @@ lemma type_1_is_mutation_le_pos {m n : ℕ} (h_le : m ≤ n) :
     (Gene.ofRank (m - 1) (- .Positive) + Gene.ofRank (n + 1) .Positive) := by
   rw [le_iff_dominates]
   intro k
-  repeat first | rw [prime_it_add] | rw [prime_ofRank_it] | rw [signature_add]
+  simp only [GeneType.neg_pos_eq_neg, iterate_map_add, map_add]
+  repeat rw [prime_ofRank_it]
   by_cases hk1 : k < m
-  · rw [signature_it_ofRank_pos (by omega), GeneType.neg_pos_eq_neg,
-      signature_it_ofRank_pos (by omega)]
+  · rw [signature_it_ofRank_pos (by omega), signature_it_ofRank_pos (by omega)]
     convert_to _ ≤
       (Gene.ofRank (m - k - 1) .Negative).signature +
       ((Gene.ofRank (n - k) .Negative).signature + (1, 0))
@@ -87,7 +88,7 @@ lemma type_1_is_mutation_le_pos {m n : ℕ} (h_le : m ≤ n) :
   by_cases hk2 : k < n
   · rw [Nat.sub_right_comm, Nat.sub_eq_zero_of_le <| Nat.le_of_not_lt hk1,
       Nat.zero_sub, signature_ofRank_zero, signature_ofRank_zero, zero_add,
-      zero_add, signature_it_ofRank_pos (by omega), GeneType.neg_pos_eq_neg]
+      zero_add, signature_it_ofRank_pos (by omega)]
     convert_to _ ≤ (Gene.ofRank (n - k) .Negative).signature + (1, 0)
     · congr 3; omega
     simp; exact posPart_eq_self.mp rfl
@@ -102,10 +103,10 @@ lemma type_1_is_mutation_le_neg {m n : ℕ} (h_le : m ≤ n) :
     (Gene.ofRank (m - 1) (- .Negative) + Gene.ofRank (n + 1) .Negative) := by
   rw [le_iff_dominates]
   intro k
-  repeat first | rw [prime_it_add] | rw [prime_ofRank_it] | rw [signature_add]
+  simp only [GeneType.neg_neg_eq_pos, iterate_map_add, map_add]
+  repeat rw [prime_ofRank_it]
   by_cases hk1 : k < m
-  · rw [signature_it_ofRank_neg (by omega), GeneType.neg_neg_eq_pos,
-      signature_it_ofRank_neg (by omega)]
+  · rw [signature_it_ofRank_neg (by omega), signature_it_ofRank_neg (by omega)]
     convert_to _ ≤
       (Gene.ofRank (m - k - 1) .Positive).signature +
       ((Gene.ofRank (n - k) .Positive).signature + (0, 1))
@@ -116,7 +117,7 @@ lemma type_1_is_mutation_le_neg {m n : ℕ} (h_le : m ≤ n) :
   by_cases hk2 : k < n
   · rw [Nat.sub_right_comm, Nat.sub_eq_zero_of_le <| Nat.le_of_not_lt hk1,
       Nat.zero_sub, signature_ofRank_zero, signature_ofRank_zero, zero_add,
-      zero_add, signature_it_ofRank_neg (by omega), GeneType.neg_neg_eq_pos]
+      zero_add, signature_it_ofRank_neg (by omega)]
     convert_to _ ≤ (Gene.ofRank (n - k) .Positive).signature + (0, 1)
     · congr 3; omega
     simp; exact posPart_eq_self.mp rfl
