@@ -58,7 +58,7 @@ def signature : Chromosome →+ ℚ × ℚ where
 lemma signature_nonneg (X : Chromosome) : 0 ≤ X.signature := by
   dsimp [signature]
   exact sum_nonneg' fun g ↦
-    smul_nonneg Rat.natCast_nonneg g.signature_nonneg
+    smul_nonneg Rat.natCast_nonneg g.signature_pos.le
 
 @[simp] lemma signature_ofRank_zero {ε : GeneType} :
     (Gene.ofRank 0 ε).signature = 0 := rfl
@@ -72,10 +72,10 @@ lemma signature_nonneg (X : Chromosome) : 0 ≤ X.signature := by
   · rfl
   · simp
 
-@[simp] lemma signature_single {k : ℕ} (hk : 1 ≤ k) {ε : GeneType} :
-    signature (single (⟨k, ε, hk⟩ : Gene) 1) =
-    (⟨k, ε, hk⟩ : Gene).signature := by
-  simp [signature]
+@[simp] lemma signature_single {k : ℕ} {n : ℕ} (hk : 1 ≤ k) {ε : GeneType} :
+    signature (single (⟨k, ε, hk⟩ : Gene) n) =
+    n * (⟨k, ε, hk⟩ : Gene).signature := by
+  simp [signature]; rfl
 
 lemma signature_ofRank_nonpol {n : ℕ} :
     (Gene.ofRank n .NonPolarized).signature =

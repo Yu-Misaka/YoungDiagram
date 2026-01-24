@@ -61,3 +61,15 @@ lemma prime_lift_LeftInverse_it (k : ℕ) :
   Function.LeftInverse.iterate prime_lift_LeftInverse k
 
 end Chromosome
+
+namespace Lifting
+
+namespace Pi
+
+open Chromosome Chromosome.Pi
+
+
+
+end Pi
+
+end Lifting

@@ -96,6 +96,22 @@ lemma Gene.signature_eq_neg {g : Gene} (hg : g.type = .Negative) :
     simp [Gene.toList, hg]
     exact signature_eq_neg_aux
 
-lemma Gene.signature_nonneg (g : Gene) : 0 ≤ g.signature := by
-  simp [Gene.signature]
-  split <;> exact Prod.le_def.mpr ⟨by positivity, by positivity⟩
+lemma Gene.signature_pos (g : Gene) : 0 < g.signature := by
+  match hg : g.type with
+  | .NonPolarized =>
+    rw [signature_eq_nonpolarized hg]
+    exact Prod.lt_of_le_of_lt (by positivity) (by positivity [g.rank_pos])
+  | .Positive =>
+    rw [signature_eq_pos hg]
+    split_ifs
+    · exact Prod.lt_of_lt_of_le (by positivity [g.rank_pos]) (by positivity)
+    · exact Prod.lt_of_lt_of_le (by positivity [g.rank_pos]) <|
+        Rat.div_nonneg ((Rat.le_iff_sub_nonneg 1 _).1 <|
+          Nat.one_le_cast.2 g.rank_pos) rfl
+  | .Negative =>
+    rw [signature_eq_neg hg]
+    split_ifs
+    · exact Prod.lt_of_le_of_lt (by positivity) (by positivity [g.rank_pos])
+    · refine Prod.lt_of_le_of_lt ?_ (by positivity [g.rank_pos])
+      exact Rat.div_nonneg ((Rat.le_iff_sub_nonneg 1 _).1 <|
+          Nat.one_le_cast.2 g.rank_pos) rfl

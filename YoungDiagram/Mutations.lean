@@ -34,27 +34,25 @@ variable (hle : m ≤ n) (hm : 1 ≤ m)
 
 def X₁ : Pi := by
   use Gene.ofRank m ε + Gene.ofRank n (- ε)
-  rw [mem_Pi_iff]
-  refine IsPolarized_add ?_ ?_
-  · rwa [IsPolarized_ofRank hm]
-  · rwa [IsPolarized_ofRank (hm.trans hle),
-      ← GeneType.nonpolarized_iff_neg_non]
+  rw [mem_Pi_iff, IsPolarized_iff_add]
+  exact ⟨by rwa [IsPolarized_ofRank hm],
+    by rwa [IsPolarized_ofRank (hm.trans hle),
+      ← GeneType.nonpolarized_iff_neg_non]⟩
 
 lemma X₁_eq : X₁ hε hle hm =
   Gene.ofRank m ε + Gene.ofRank n (- ε) := rfl
 
 def Y₁ : Pi := by
   use Gene.ofRank (m - 1) (- ε) + Gene.ofRank (n + 1) ε
-  rw [mem_Pi_iff]
-  refine IsPolarized_add ?_ ?_
-  · match m with
-    | 1 =>
-      rw [← mem_Pi_iff, Nat.sub_self, Gene.ofRank_zero]
-      exact zero_mem _
-    | m + 2 =>
-      rwa [IsPolarized_ofRank (Nat.le_of_ble_eq_true rfl),
-        ← GeneType.nonpolarized_iff_neg_non]
-  · rwa [IsPolarized_ofRank (Nat.le_add_left 1 n)]
+  rw [mem_Pi_iff, IsPolarized_iff_add]
+  refine ⟨?_, by rwa [IsPolarized_ofRank (Nat.le_add_left 1 n)]⟩
+  match m with
+  | 1 =>
+    rw [← mem_Pi_iff, Nat.sub_self, Gene.ofRank_zero]
+    exact zero_mem _
+  | m + 2 =>
+    rwa [IsPolarized_ofRank (Nat.le_of_ble_eq_true rfl),
+      ← GeneType.nonpolarized_iff_neg_non]
 
 lemma Y₁_eq : Y₁ hε hle hm =
   Gene.ofRank (m - 1) (- ε) + Gene.ofRank (n + 1) ε := rfl
@@ -72,15 +70,13 @@ lemma X₂_eq : X₂ hε hle hm =
 
 def Y₂ : Pi := by
   use Gene.ofRank (m - 2) ε + Gene.ofRank (n + 2) ε
-  rw [mem_Pi_iff]
-  refine IsPolarized_add ?_ ?_
-  · match m with
-    | 2 =>
-      rw [← mem_Pi_iff, Nat.sub_self, Gene.ofRank_zero]
-      exact zero_mem _
-    | m + 3 =>
-      rwa [IsPolarized_ofRank (by omega)]
-  · rwa [IsPolarized_ofRank (Nat.le_add_left 1 (n + 1))]
+  rw [mem_Pi_iff, IsPolarized_iff_add]
+  refine ⟨?_, by rwa [IsPolarized_ofRank (Nat.le_add_left 1 (n + 1))]⟩
+  match m with
+  | 2 =>
+    rw [← mem_Pi_iff, Nat.sub_self, Gene.ofRank_zero]
+    exact zero_mem _
+  | m + 3 => rwa [IsPolarized_ofRank (by omega)]
 
 lemma Y₂_eq : Y₂ hε hle hm =
   Gene.ofRank (m - 2) ε + Gene.ofRank (n + 2) ε := rfl
@@ -93,26 +89,24 @@ variable (hle : m ≤ n) (hm : 1 ≤ m)
 
 def X₃ : Pi := by
   use Gene.ofRank' m ε + Gene.ofRank' n (- ε)
-  rw [mem_Pi_iff]
-  refine IsPolarized_add ?_ ?_
-  · rwa [IsPolarized_ofRank' hm]
-  · rwa [IsPolarized_ofRank' (hm.trans hle),
-      ← GeneType.nonpolarized_iff_neg_non]
+  rw [mem_Pi_iff, IsPolarized_iff_add]
+  exact ⟨by rwa [IsPolarized_ofRank' hm], by
+    rwa [IsPolarized_ofRank' (hm.trans hle),
+      ← GeneType.nonpolarized_iff_neg_non]⟩
 
 lemma X₃_eq : X₃ hε hle hm =
   Gene.ofRank' m ε + Gene.ofRank' n (- ε) := rfl
 
 def Y₃ : Pi := by
   use Gene.ofRank' (m - 1) ε + Gene.ofRank' (n + 1) (- ε)
-  rw [mem_Pi_iff]
-  refine IsPolarized_add ?_ ?_
-  · match m with
-    | 1 =>
-      rw [Nat.sub_self, Gene.ofRank'_def, Gene.ofRank_zero, ← mem_Pi_iff]
-      exact zero_mem _
-    | m + 2 => rwa [IsPolarized_ofRank' (by omega)]
-  · rwa [IsPolarized_ofRank' (by omega),
-      ← GeneType.nonpolarized_iff_neg_non]
+  rw [mem_Pi_iff, IsPolarized_iff_add]
+  refine ⟨?_, by rwa [IsPolarized_ofRank' (by omega),
+    ← GeneType.nonpolarized_iff_neg_non]⟩
+  match m with
+  | 1 =>
+    rw [Nat.sub_self, Gene.ofRank'_def, Gene.ofRank_zero, ← mem_Pi_iff]
+    exact zero_mem _
+  | m + 2 => rwa [IsPolarized_ofRank' (by omega)]
 
 end type_3
 
