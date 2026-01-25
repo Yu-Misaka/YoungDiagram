@@ -362,6 +362,34 @@ lemma o_prime {X : Chromosome} : X.prime.o = X.e.prime := by
       · simp [o_single, (Nat.even_sub a.rank_pos).2 <|
           (iff_false_right Nat.not_even_one).2 ha]
 
+lemma e_lift {X : Chromosome} : X.lift.e = X.o.lift := by
+  induction X using Finsupp.induction
+  · repeat rw [map_zero]
+  · expose_names
+    repeat rw [map_add]
+    rw [h_2, add_left_inj, ← smul_single_one, map_nsmul, map_nsmul,
+      map_nsmul, map_nsmul, nsmul_right_inj h_1, o_single]
+    split_ifs with ha
+    · simp [lift, liftGene, e_single, Even.add_one ha]
+    · simp [lift, liftGene, e_single,
+        Nat.not_odd_iff_even.2 <| Nat.even_add_one.2 ha]
+
+lemma o_lift {X : Chromosome} : X.lift.o = X.e.lift := by
+  induction X using Finsupp.induction
+  · repeat rw [map_zero]
+  · expose_names
+    repeat rw [map_add]
+    rw [h_2, add_left_inj, ← smul_single_one, map_nsmul, map_nsmul,
+      map_nsmul, map_nsmul, nsmul_right_inj h_1, e_single]
+    split_ifs with ha
+    · simp [lift, liftGene, o_single, Even.add_one ha]
+    · simp [lift, liftGene, o_single,
+        Nat.not_odd_iff_even.2 <| Nat.even_add_one.2 ha]
+
+lemma prime_eq_o {X Y : Chromosome} (h : X.prime = Y.o) : X.e = X := by
+  sorry
+
+
 end parity
 
 section Mix
