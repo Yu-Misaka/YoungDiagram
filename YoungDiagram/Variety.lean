@@ -376,45 +376,6 @@ lemma e_o_eq_zero {X : Chromosome} : e (o X) = 0 := by
   rw [Nat.even_iff, ho] at he
   tauto
 
-lemma prime_of_odd {X : Chromosome} : X.IsFiltered (Odd ·.rank) ↔
-    X.prime.IsFiltered (Even ·.rank) := by
-  constructor <;> intro h
-  · change X.prime.e = X.prime
-    change X.o = X at h
-    nth_rw 2 [X.prime.parityDecomposition]
-    simp only [right_eq_add]
-    nth_rw 2 [X.parityDecomposition] at h
-    simp only [left_eq_add] at h
-    rw [o_prime, h, map_zero]
-  · induction X using Finsupp.induction
-    · exact IsFiltered_zero
-    · expose_names
-      rw [map_add, IsFiltered_iff_add] at h
-      refine IsFiltered_iff_add.2 ⟨?_, h_3 h.2⟩
-      replace h := h.1
-      rw [← Gene.ofRank_eq_gene', map_nsmul,
-        IsFiltered_iff_nsmul h_2, prime_ofRank, IsFiltered_def, Gene.ofRank_def] at h
-      rw [← Gene.ofRank_eq_gene', IsFiltered_iff_nsmul h_2, Gene.ofRank_eq_gene,
-        IsFiltered_def]
-      by_cases ha : Odd a.rank
-      · rwa [filter_single_of_pos]
-      · split_ifs at h with hr
-        · simp [(Nat.sub_one_cancel Nat.one_pos a.rank_pos hr.symm).symm] at ha
-        · rw [filter_single_of_neg] at h
-          · symm at h; rw [single_eq_zero] at h; tauto
-          · exact Nat.not_even_iff_odd.mpr <| Nat.Even.sub_odd a.rank_pos
-              (Nat.not_odd_iff_even.mp ha) <| Nat.odd_iff.mpr rfl
-
-lemma prime_of_even {X : Chromosome} (h : X.IsFiltered (Even ·.rank)) :
-    X.prime.IsFiltered (Odd ·.rank) := by
-  change X.prime.o = X.prime
-  change X.e = X at h
-  nth_rw 2 [X.prime.parityDecomposition]
-  simp only [left_eq_add]
-  nth_rw 2 [X.parityDecomposition] at h
-  simp only [right_eq_add] at h
-  rw [e_prime, h, map_zero]
-
 end parity
 
 section Mix
