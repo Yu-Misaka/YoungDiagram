@@ -362,6 +362,20 @@ lemma o_prime {X : Chromosome} : X.prime.o = X.e.prime := by
     add_left_inj] at this
   exact this.symm
 
+lemma o_e_eq_zero {X : Chromosome} : o (e X) = 0 := by
+  simp [o, e, filter_eq_zero_iff, filter_apply]
+  intro _ ho he
+  rw [Nat.odd_iff] at ho
+  rw [Nat.even_iff, ho] at he
+  tauto
+
+lemma e_o_eq_zero {X : Chromosome} : e (o X) = 0 := by
+  simp [o, e, filter_eq_zero_iff, filter_apply]
+  intro _ he ho
+  rw [Nat.odd_iff] at ho
+  rw [Nat.even_iff, ho] at he
+  tauto
+
 lemma prime_of_odd {X : Chromosome} : X.IsFiltered (Odd ·.rank) ↔
     X.prime.IsFiltered (Even ·.rank) := by
   constructor <;> intro h
@@ -426,12 +440,24 @@ lemma prime_Mix_1 {v : variety × variety} :
 
 lemma prime_Mix_2 {v : variety × variety}
     (hv1 : ∀ x ∈ v.1, x.o ∈ v.1 ∧ x.e ∈ v.1)
-    (hv2 : ∀ x ∈ v.2, x.o ∈ v.1 ∧ x.e ∈ v.1) :
+    (hv2 : ∀ x ∈ v.2, x.o ∈ v.2 ∧ x.e ∈ v.2) :
     (Mix v).prime = Mix ⟨v.2.prime, v.1.prime⟩ := by
   refine le_antisymm prime_Mix_1 (fun x hx ↦ ?_)
   obtain ⟨⟨y₁, ⟨h11, h12⟩⟩, ⟨y₂, ⟨h21, h22⟩⟩⟩ := hx
-  sorry
-
+  have eq1 : (o y₁).prime = e x := by
+    apply_fun e at h12
+    rwa [y₁.parityDecomposition, map_add, map_add, ← o_prime,
+      ← e_prime, e_it, e_it, e_o_eq_zero, add_zero, e_prime] at h12
+  have eq2 : (e y₂).prime = o x := by
+    apply_fun o at h22
+    rwa [y₂.parityDecomposition, map_add, map_add, ← o_prime,
+      ← e_prime, o_it, o_it, o_e_eq_zero, zero_add, o_prime] at h22
+  refine ⟨y₁.o + y₂.e, ⟨add_mem ⟨?_, ?_⟩ ⟨?_, ?_⟩, ?_⟩⟩
+  · rw [e_o_eq_zero]; exact zero_mem _
+  · rw [o_it]; exact (hv2 _ h11).1
+  · rw [e_it]; exact (hv1 _ h21).2
+  · rw [o_e_eq_zero]; exact zero_mem _
+  · rw [map_add, eq1, eq2, add_comm]; exact x.parityDecomposition.symm
 
 end Mix
 
