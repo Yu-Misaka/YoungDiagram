@@ -17,15 +17,15 @@ noncomputable abbrev Gene.ofRank (n : ℕ) (ε : GeneType) : Chromosome :=
   if h : n = 0 then 0
   else single ⟨n, ε, Nat.pos_of_ne_zero h⟩ 1
 
-noncomputable abbrev Gene.ofRank' (n : ℕ) (ε : GeneType) : Chromosome :=
+noncomputable abbrev Gene.ofRankAlt (n : ℕ) (ε : GeneType) : Chromosome :=
   Gene.ofRank n ((- 1) ^ (n - 1) • ε)
 
 lemma Gene.ofRank_def {n : ℕ} {ε : GeneType} :
   Gene.ofRank n ε = if h : n = 0 then 0
     else single ⟨n, ε, Nat.pos_of_ne_zero h⟩ 1 := rfl
 
-lemma Gene.ofRank'_def {n : ℕ} {ε : GeneType} :
-  Gene.ofRank' n ε = Gene.ofRank n ((- 1) ^ (n - 1) • ε) := rfl
+lemma Gene.ofRankAlt_def {n : ℕ} {ε : GeneType} :
+  Gene.ofRankAlt n ε = Gene.ofRank n ((- 1) ^ (n - 1) • ε) := rfl
 
 @[simp] lemma Gene.ofRank_zero {ε : GeneType} : Gene.ofRank 0 ε = 0 := rfl
 
@@ -36,11 +36,11 @@ lemma Gene.ofRank_eq_gene {g : Gene} :
   · absurd h; exact Nat.ne_zero_of_lt g.rank_pos
   · rfl
 
-lemma Gene.ofRank_eq_gene' {g : Gene} {m : ℕ} :
+lemma Gene.ofRank_eq_gene_smul {g : Gene} {m : ℕ} :
     m • Gene.ofRank g.rank g.type = single g m := by
   rw [← smul_single_one, ofRank_eq_gene]
 
-def max_rank (c : Chromosome) : ℕ :=
+def maxRank (c : Chromosome) : ℕ :=
   c.support.sup (fun g ↦ g.rank)
 
 namespace Chromosome
@@ -80,49 +80,49 @@ lemma signature_nonneg (X : Chromosome) : 0 ≤ X.signature := by
     n * (⟨k, ε, hk⟩ : Gene).signature := by
   simp [signature]; rfl
 
-lemma signature_ofRank_nonpol {n : ℕ} :
+lemma signature_ofRank_nonPolarized {n : ℕ} :
     (Gene.ofRank n .NonPolarized).signature =
     (Gene.ofRank n .NonPolarized).signature.swap := by
   simp
   split_ifs
   · rfl
-  · rw [Gene.signature_eq_nonpolarized rfl]; rfl
+  · rw [Gene.signature_eq_nonPolarized rfl]; rfl
 
 lemma signature_ofRank_swap {n : ℕ} {ε : GeneType} :
     (Gene.ofRank n (- ε)).signature = (Gene.ofRank n ε).signature.swap := by
   cases ε
-  · exact signature_ofRank_nonpol
+  · exact signature_ofRank_nonPolarized
   all_goals
     simp; split_ifs
     · rfl
-    · first | rw [Gene.signature_eq_neg rfl, Gene.signature_eq_pos rfl] |
-        rw [Gene.signature_eq_pos rfl, Gene.signature_eq_neg rfl]
+    · first | rw [Gene.signature_eq_negative rfl, Gene.signature_eq_positive rfl] |
+        rw [Gene.signature_eq_positive rfl, Gene.signature_eq_negative rfl]
       simp only; split_ifs <;> rfl
 
-lemma signature_it_ofRank_pos {k : ℕ} (hk : 1 ≤ k) :
+lemma signature_ofRank_positive_eq {k : ℕ} (hk : 1 ≤ k) :
     (Gene.ofRank k .Positive).signature =
     (Gene.ofRank (k - 1) .Negative).signature + (1, 0) := by
   have hk' : k ≠ 0 := by omega
   simp [hk']
   split_ifs with h
   · replace hk : k = 1 := by omega
-    simp [Gene.signature_eq_pos, hk]
-  · simp [Gene.signature_eq_pos]
+    simp [Gene.signature_eq_positive, hk]
+  · simp [Gene.signature_eq_positive]
     split_ifs with h1
     · have : ¬ Even (k - 1) := by
         rwa [(Nat.sub_eq_iff_eq_add hk).mp rfl, Nat.even_add_one] at h1
-      simp [Gene.signature_eq_neg, this, Nat.cast_pred hk]
+      simp [Gene.signature_eq_negative, this, Nat.cast_pred hk]
       linarith
     · have : Even (k - 1) := by
         rwa [(Nat.sub_eq_iff_eq_add hk).mp rfl, Nat.even_add_one, not_not] at h1
-      simp [Gene.signature_eq_neg, this, Nat.cast_pred hk]
+      simp [Gene.signature_eq_negative, this, Nat.cast_pred hk]
       linarith
 
-lemma signature_it_ofRank_neg {k : ℕ} (hk : 1 ≤ k) :
+lemma signature_ofRank_negative_eq {k : ℕ} (hk : 1 ≤ k) :
     (Gene.ofRank k .Negative).signature =
     (Gene.ofRank (k - 1) .Positive).signature + (0, 1) := by
   rw [← GeneType.neg_pos_eq_neg, signature_ofRank_swap,
-    signature_it_ofRank_pos hk, Prod.swap_add, ← signature_ofRank_swap]
+    signature_ofRank_positive_eq hk, Prod.swap_add, ← signature_ofRank_swap]
   rfl
 
 end signature
@@ -155,7 +155,7 @@ lemma prime_ofRank {n : ℕ} {ε : GeneType} :
   simp [hn]
   rfl
 
-lemma prime_ofRank_it {k n : ℕ} {ε : GeneType} :
+lemma prime_iterate_ofRank {k n : ℕ} {ε : GeneType} :
     prime^[k] (Gene.ofRank n ε) = Gene.ofRank (n - k) ε := by
   induction hk : k using Nat.strong_induction_on generalizing k
   expose_names
@@ -179,18 +179,18 @@ $X$ dominates $Y$ ($X \ge Y$) if the signature of $X^{(k)}$ is
 component-wise greater than or equal to
 the signature of $Y^{(k)}$ for all $k \ge 0$.
 -/
-def dominates (X Y : Chromosome) : Prop :=
+def Dominates (X Y : Chromosome) : Prop :=
   ∀ k : ℕ, signature (prime^[k] Y) ≤ signature (prime^[k] X)
 
 instance : LE Chromosome where
-  le a b := b.dominates a
+  le a b := b.Dominates a
 
 /--
 The dominance relation forms a preorder on the set of all chromosomes.
 -/
 instance : Preorder Chromosome where
   le_refl a _ := le_refl _
-  lt a b := b.dominates a ∧ ¬a.dominates b
+  lt a b := b.Dominates a ∧ ¬a.Dominates b
   le_trans _ _ _ hab hbc k := le_trans (hab k) (hbc k)
 
 @[simp] lemma le_iff_dominates {X Y : Chromosome} : X ≤ Y ↔

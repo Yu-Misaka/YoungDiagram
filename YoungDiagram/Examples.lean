@@ -1,10 +1,10 @@
 import YoungDiagram
 
-#eval [true].isAlt
-#eval [true, true].isAlt
-#eval [true, false].isAlt
-#eval [true, false, true].isAlt
-#eval [false, true, false].isAlt
+#eval [true].IsAlt
+#eval [true, true].IsAlt
+#eval [true, false].IsAlt
+#eval [true, false, true].IsAlt
+#eval [false, true, false].IsAlt
 
 #eval [true].toGene
 #eval [true, false].toGene
@@ -21,7 +21,7 @@ import YoungDiagram
 #eval [true, false, true].toGene.signature
 #eval [false, true, false].toGene.signature
 
-open Chromosome Pointwise
+open Pointwise Variety Mutation
 
 #check Pi
 #check Mix (Lambda, Pi)
@@ -29,7 +29,7 @@ open Chromosome Pointwise
 #check Mix (2 • Lambda, Pi)
 #check Mix (Pi, 2 • Lambda)
 
-#synth SMul ℕ variety
+#synth SMul ℕ Variety
 
 noncomputable section example_of_mutation
 
@@ -41,8 +41,8 @@ abbrev Y₁ := Gene.ofRank 6 .Negative +
 
 example : IsMutation X Y₁ := by
   rw [X, Y₁, add_comm, ← add_assoc, IsMutation_iff_add]
-  have primMut := @Pi.PrimitiveMutation.type_1 .Negative (by decide) 1 5 NeZero.one_le NeZero.one_le
-  have := Pi.PrimitiveMutation_isMutation primMut
-  simpa [Pi.Y₁, Pi.X₁] using this
+  have primMut := @Pi.Primitive.type1 .Negative (by decide) 1 5 NeZero.one_le NeZero.one_le
+  have := Pi.Primitive.isMutation primMut
+  simpa [Pi.Y1, Pi.X1] using this
 
 end example_of_mutation

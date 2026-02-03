@@ -86,9 +86,9 @@ lemma sig_rank_0_eq_0_gene : (g : Gene) → (h : g.rank = 0) → g.signature = (
   have h' : g.rank/2 = 0 := by simp [h]
   sorry
 
-lemma sig_rank_0_eq_0 : (X : Chromosome) → (h : max_rank X = 0) → signature X = 0 := by
+lemma sig_rank_0_eq_0 : (X : Chromosome) → (h : maxRank X = 0) → signature X = 0 := by
   intro X h
-  rw [max_rank] at h
+  rw [maxRank] at h
   rw [signature]
   simp
   have h1 : ∀ g ∈ X.support, g.rank = 0 := by
@@ -106,17 +106,17 @@ lemma sig_rank_0_eq_0 : (X : Chromosome) → (h : max_rank X = 0) → signature 
   rw [this]
   simp
 
-lemma max_rank_prime_minus1 : (X : Chromosome) → (h : max_rank X = n + 1) →
-  max_rank (prime X) = n := by
+lemma max_rank_prime_minus1 : (X : Chromosome) → (h : maxRank X = n + 1) →
+  maxRank (prime X) = n := by
   intro X h
-  rw [max_rank]
-  rw [max_rank] at h
+  rw [maxRank]
+  rw [maxRank] at h
   rw [prime]
   simp
   rw [Finsupp.sum]
   sorry
 
-lemma sig_prime_rank_eq_0 : ∀ k : ℕ, ∀ X : Chromosome, (h : max_rank X = k) →
+lemma sig_prime_rank_eq_0 : ∀ k : ℕ, ∀ X : Chromosome, (h : maxRank X = k) →
   signature (prime^[k] X) = (0,0) := by
   intro k
   induction k with
@@ -134,8 +134,8 @@ lemma sig_prime_rank_eq_0 : ∀ k : ℕ, ∀ X : Chromosome, (h : max_rank X = k
 lemma cond15_2_0case : (X : Chromosome) →
   ∃ k : ℕ, (sigma_k X k) = 0 := by
   intro X
-  let k := max_rank X
-  have h : k = max_rank X := by rfl
+  let k := maxRank X
+  have h : k = maxRank X := by rfl
   have h' : signature (prime^[k] X) = (0, 0) := by
     apply sig_prime_rank_eq_0
     exact h

@@ -33,7 +33,7 @@ instance : SMul ℤ GeneType where
   · simp [h]
   · simp [Nat.not_even_iff_odd.1 h]
 
-lemma GeneType.nonpolarized_iff_neg_non {ε : GeneType} :
+lemma GeneType.ne_nonPolarized_iff_neg_ne {ε : GeneType} :
     ε ≠ .NonPolarized ↔ - ε ≠ .NonPolarized := by cases ε <;> decide
 
 /--
@@ -49,7 +49,7 @@ structure Gene where
 deriving DecidableEq, Repr
 
 def List.toGene {l : List Bool} (hl : l ≠ [] := by decide)
-    (_ : l.isAlt hl := by decide) : Gene :=
+    (_ : l.IsAlt hl := by decide) : Gene :=
   ⟨l.length, if l.getLast hl = true then .Positive else .Negative, List.length_pos_iff.2 hl⟩
 
 def Gene.toList {g : Gene} (_ : g.type ≠ .NonPolarized := by decide) : List Bool :=
@@ -71,12 +71,12 @@ def Gene.signature (g : Gene) : ℚ × ℚ :=
       (not_eq_of_beq_eq_false rfl)
     (l.count true, l.count false)
 
-lemma Gene.signature_eq_nonpolarized {g : Gene} (hg : g.type = .NonPolarized) :
+lemma Gene.signature_eq_nonPolarized {g : Gene} (hg : g.type = .NonPolarized) :
     g.signature = ((g.rank : ℚ) / 2, (g.rank : ℚ) / 2) := by
   simp [Gene.signature]
   split <;> simp_all only [reduceCtorEq]
 
-lemma Gene.signature_eq_pos {g : Gene} (hg : g.type = .Positive) :
+lemma Gene.signature_eq_positive {g : Gene} (hg : g.type = .Positive) :
   g.signature =
     if Even g.rank then ((g.rank : ℚ) / 2, (g.rank : ℚ) / 2)
     else (((g.rank : ℚ) + 1) / 2, ((g.rank : ℚ) - 1) / 2) := by
@@ -84,9 +84,9 @@ lemma Gene.signature_eq_pos {g : Gene} (hg : g.type = .Positive) :
   split <;> simp_all only [reduceCtorEq]
   next hg =>
     simp [Gene.toList, hg]
-    exact signature_eq_pos_aux
+    exact count_iterate_not_true
 
-lemma Gene.signature_eq_neg {g : Gene} (hg : g.type = .Negative) :
+lemma Gene.signature_eq_negative {g : Gene} (hg : g.type = .Negative) :
   g.signature =
     if Even g.rank then ((g.rank : ℚ) / 2, (g.rank : ℚ) / 2)
     else (((g.rank : ℚ) - 1) / 2, ((g.rank : ℚ) + 1) / 2) := by
@@ -94,22 +94,22 @@ lemma Gene.signature_eq_neg {g : Gene} (hg : g.type = .Negative) :
   split <;> simp_all only [reduceCtorEq]
   next hg =>
     simp [Gene.toList, hg]
-    exact signature_eq_neg_aux
+    exact count_iterate_not_false
 
 lemma Gene.signature_pos (g : Gene) : 0 < g.signature := by
   match hg : g.type with
   | .NonPolarized =>
-    rw [signature_eq_nonpolarized hg]
+    rw [signature_eq_nonPolarized hg]
     exact Prod.lt_of_le_of_lt (by positivity) (by positivity [g.rank_pos])
   | .Positive =>
-    rw [signature_eq_pos hg]
+    rw [signature_eq_positive hg]
     split_ifs
     · exact Prod.lt_of_lt_of_le (by positivity [g.rank_pos]) (by positivity)
     · exact Prod.lt_of_lt_of_le (by positivity [g.rank_pos]) <|
         Rat.div_nonneg ((Rat.le_iff_sub_nonneg 1 _).1 <|
           Nat.one_le_cast.2 g.rank_pos) rfl
   | .Negative =>
-    rw [signature_eq_neg hg]
+    rw [signature_eq_negative hg]
     split_ifs
     · exact Prod.lt_of_le_of_lt (by positivity) (by positivity [g.rank_pos])
     · refine Prod.lt_of_le_of_lt ?_ (by positivity [g.rank_pos])
