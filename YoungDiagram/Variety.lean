@@ -316,6 +316,12 @@ lemma IsPolarized_ofRank {k : ℕ} {ε : GeneType} (hk : 1 ≤ k) :
   · omega
   · exact IsPolarized_single
 
+lemma IsPolarized_ofRank' {k : ℕ} {ε : GeneType} (hε : ε ≠ .NonPolarized) :
+    (Gene.ofRank k ε).IsPolarized :=
+  match k with
+  | 0 => IsPolarized_zero
+  | n + 1 => (IsPolarized_ofRank (Nat.le_add_left 1 n)).2 hε
+
 lemma IsPolarized_ofRankAlt {k : ℕ} {ε : GeneType} (hk : 1 ≤ k) :
     (Gene.ofRankAlt k ε).IsPolarized ↔ ε ≠ .NonPolarized := by
   rw [Gene.ofRankAlt_def, IsPolarized_ofRank hk,
@@ -323,6 +329,12 @@ lemma IsPolarized_ofRankAlt {k : ℕ} {ε : GeneType} (hk : 1 ≤ k) :
   split_ifs
   · rfl
   · exact GeneType.ne_nonPolarized_iff_neg_ne.symm
+
+lemma IsPolarized_ofRankAlt' {k : ℕ} {ε : GeneType} (hε : ε ≠ .NonPolarized) :
+    (Gene.ofRankAlt k ε).IsPolarized :=
+  match k with
+  | 0 => IsPolarized_zero
+  | n + 1 => (IsPolarized_ofRankAlt (Nat.le_add_left 1 n)).2 hε
 
 lemma IsPolarized_iff_add {X Y : Chromosome} :
   (X + Y).IsPolarized ↔ X.IsPolarized ∧ Y.IsPolarized := IsFiltered_iff_add
@@ -541,15 +553,27 @@ lemma Label.prime_eq {i : Fin 5} :
     rw [prime_Mix_eq Pi_closed_under_parityDecomp Lambda_closed_under_parityDecomp',
       prime_Pi, variety_prime_smul, prime_Lambda]
 
-noncomputable def Label.of_mem_prime_iterate {i : Fin 5} {k : ℕ} {X : Chromosome}
-    (hX : X ∈ Label i) : Label (Label.prime^[k] i) := by
-  use Chromosome.prime^[k] X
-  induction k generalizing i X
+lemma Label.prime_eq_iterate {i : Fin 5} {k : ℕ} :
+    Label (prime^[k] i) = Variety.prime^[k] (Label i) := by
+  induction k
+  · rw [Function.iterate_zero, Function.iterate_zero]; rfl
+  · expose_names
+    nth_rw 1 [add_comm, Function.iterate_add_apply, Function.iterate_one,
+      ← Label.prime_eq, h, Function.iterate_add_apply, Function.iterate_one]
+    exact (Function.iterate_succ_apply' ..).symm
+
+lemma mem_prime_iterate {k : ℕ} {X : Chromosome} {V : Variety} (hX : X ∈ V) :
+    Chromosome.prime^[k] X ∈ Variety.prime^[k] V := by
+  induction k generalizing V X
   · rwa [Function.iterate_zero, Function.iterate_zero]
   · expose_names
     rw [Function.iterate_succ_apply, Function.iterate_succ_apply]
-    refine @h (prime i) X.prime ?_
-    rw [← Label.prime_eq]
-    refine ⟨X, hX, rfl⟩
+    exact @h X.prime V.prime ⟨X, hX, rfl⟩
+
+noncomputable def Label.of_mem_prime_iterate {i : Fin 5} {k : ℕ} {X : Chromosome}
+    (hX : X ∈ Label i) : Label (Label.prime^[k] i) := by
+  use Chromosome.prime^[k] X
+  rw [Label.prime_eq_iterate]
+  exact mem_prime_iterate hX
 
 end Variety
