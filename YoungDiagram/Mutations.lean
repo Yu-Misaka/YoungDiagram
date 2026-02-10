@@ -132,8 +132,12 @@ lemma Primitive.isMutation {X Y : Pi} (h : Primitive X Y) : IsMutation X Y := by
   | type1 ε hε hle hm =>
     exact ⟨mutation_type1_le hε hle,
       mutation_type1_ne hle hm, mutation_type1_signature_eq hε hle hm⟩
-  | @type2 ε hε m n hle hm => sorry
-  | @type3 ε hε m n hle hm => sorry
+  | @type2 ε hε m n hle hm =>
+    exact ⟨mutation_type2_le hε hle hm,
+      mutation_type2_ne hle hm, mutation_type2_signature_eq hε hle hm⟩
+  | @type3 ε hε m n hle hm =>
+    exact ⟨mutation_type3_le hε hle hm,
+      mutation_type3_ne hle hm, mutation_type3_signature_eq hε hle hm⟩
 
 lemma Step.isMutation {X Y : Pi} (h : Step X Y) : IsMutation X Y := by
   cases h with

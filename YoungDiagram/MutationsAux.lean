@@ -116,3 +116,60 @@ lemma mutation_type1_le {ε : GeneType} (hε : ε ≠ .NonPolarized)
   | .Negative => mutation_type1_le_negative h_le
 
 end type1_isMutation
+
+section type2_isMutation
+
+lemma mutation_type2_ne {ε : GeneType}
+  {m n : ℕ} (h_le : m ≤ n) (hm : 1 < m) :
+    (Gene.ofRank m ε + Gene.ofRank n (- ε)) ≠
+    (Gene.ofRank (m - 2) ε + Gene.ofRank (n + 2) ε) :=
+  sorry
+
+lemma mutation_type2_signature_eq {ε : GeneType} (hε : ε ≠ .NonPolarized)
+  {m n : ℕ} (h_le : m ≤ n) (hm : 1 < m) :
+    (Gene.ofRank m ε + Gene.ofRank n (- ε)).signature =
+    (Gene.ofRank (m - 2) ε + Gene.ofRank (n + 2) ε).signature := by
+  sorry
+
+lemma mutation_type2_le_positive {m n : ℕ} (h_le : m ≤ n) (hm : 1 < m) :
+    (Gene.ofRank m .Positive + Gene.ofRank n (- .Positive)) ≤
+    (Gene.ofRank (m - 2) .Positive + Gene.ofRank (n + 2) .Positive) := by
+  sorry
+
+lemma mutation_type2_le_negative {m n : ℕ} (h_le : m ≤ n) (hm : 1 < m) :
+    (Gene.ofRank m .Negative + Gene.ofRank n (- .Negative)) ≤
+    (Gene.ofRank (m - 2) .Negative + Gene.ofRank (n + 2) .Negative) := by
+  sorry
+
+lemma mutation_type2_le {ε : GeneType} (hε : ε ≠ .NonPolarized)
+  {m n : ℕ} (h_le : m ≤ n) (hm : 1 < m) :
+    (Gene.ofRank m ε + Gene.ofRank n (- ε)) ≤
+    (Gene.ofRank (m - 2) ε + Gene.ofRank (n + 2) ε) :=
+  match ε with
+  | .NonPolarized => by absurd hε; decide
+  | .Positive => mutation_type2_le_positive h_le hm
+  | .Negative => mutation_type2_le_negative h_le hm
+
+end type2_isMutation
+
+section type3_isMutation
+
+lemma mutation_type3_ne {ε : GeneType}
+  {m n : ℕ} (h_le : m ≤ n) (hm : 1 ≤ m) :
+    (Gene.ofRankAlt m ε + Gene.ofRankAlt n (- ε)) ≠
+    (Gene.ofRankAlt (m - 1) ε + Gene.ofRankAlt (n + 1) (- ε)) := by
+  sorry
+
+lemma mutation_type3_signature_eq {ε : GeneType} (hε : ε ≠ .NonPolarized)
+  {m n : ℕ} (h_le : m ≤ n) (hm : 1 ≤ m) :
+    (Gene.ofRankAlt m ε + Gene.ofRankAlt n (- ε)).signature =
+    (Gene.ofRankAlt (m - 1) ε + Gene.ofRankAlt (n + 1) (- ε)).signature := by
+  sorry
+
+lemma mutation_type3_le {ε : GeneType} (hε : ε ≠ .NonPolarized)
+  {m n : ℕ} (h_le : m ≤ n) (hm : 1 ≤ m) :
+    (Gene.ofRankAlt m ε + Gene.ofRankAlt n (- ε)) ≤
+    (Gene.ofRankAlt (m - 1) ε + Gene.ofRankAlt (n + 1) (- ε)) := by
+  sorry
+
+end type3_isMutation
