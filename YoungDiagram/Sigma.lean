@@ -159,17 +159,57 @@ lemma cond15_2_and_3 : ∀ k : ℕ, ∀ X : Chromosome, (sigma_k X k) ≥ (sigma
     simp
     apply ih
 
--- 1 is a > b
-lemma cond15_4_and_5_1 : (X : Chromosome) →
-  ∀ k : ℕ, (sigma_k X k).1 ≥ (sigma_k X k + 1).2 := by sorry
+lemma signature_of_zero : (X : Chromosome) → (X = 0) → signature X = (0, 0) := by
+  intro X h
+  rw [signature]
+  simp
+  rw [h]
+  sorry
+  -- i keep getting sum 0 = 0 instead of sum 0 = (0, 0)
 
--- 2 is b > a
+lemma sig_of_prime_lt_sig : (k : ℕ) → (X: Chromosome)
+  → signature X ≥ signature (prime^[k] X) := by
+  intro k
+  induction k with
+  | zero =>
+    intro X
+    simp
+  | succ n ih =>
+    intro X
+    have h : signature (prime^[n] X) ≥ signature (prime^[n+1] X) := by
+      sorry --just apply ih on prime X, but I can seem to get it to work
+    exact ge_trans (ih X) h
+
+-- 1 is a_i > b_{i+1}
+lemma cond15_4_and_5_1 : ∀ k : ℕ, ∀ X : Chromosome,
+  (sigma_k X k).1 ≥ (sigma_k X (k + 1)).2 := by
+  intro k
+  induction k with
+  | zero =>
+    intro X
+    rw [sigma_k]
+    rw [sigma_k]
+    rw [prime]
+    simp
+    rw [signature]
+    simp [primeGene, Gene.signature]
+    sorry
+  | succ n ih => sorry
+
+-- 2 is b_{i} > a_{i+1}
 lemma cond15_4_and_5_2 : (X : Chromosome) →
-  ∀ k : ℕ, (sigma_k X k).2 ≥ (sigma_k X k + 1).1 := by sorry
+  ∀ k : ℕ, (sigma_k X k).2 ≥ (sigma_k X (k + 1)).1 := by sorry
 
-lemma cond15_6_and_7_1 : (X : Chromosome) →
-  ∀ k : ℕ, (sigma_k X k).1 - (sigma_k X (k+1)).1 ≥ (sigma_k X (k+1)).2 - (sigma_k X (k+2)).2 :=
-  by sorry
+lemma cond15_6_and_7_1 : ∀ k : ℕ, ∀ X : Chromosome,
+  (sigma_k X k).1 - (sigma_k X (k+1)).1 ≥ (sigma_k X (k+1)).2 - (sigma_k X (k+2)).2 := by
+  intro k
+  induction k with
+  | zero =>
+    intro X
+    sorry
+
+  | succ n ih => sorry
+
 
 lemma cond15_6_and_7_2 : (X : Chromosome) →
   ∀ k : ℕ, (sigma_k X k).2 - (sigma_k X (k+1)).2 ≥ (sigma_k X (k+1)).1 - (sigma_k X (k+2)).1 :=
