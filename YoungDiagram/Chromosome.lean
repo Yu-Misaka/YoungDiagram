@@ -43,6 +43,9 @@ lemma Gene.ofRank_eq_gene_smul {g : Gene} {m : ℕ} :
 def maxRank (c : Chromosome) : ℕ :=
   c.support.sup (fun g ↦ g.rank)
 
+def rank (c : Chromosome) : ℕ :=
+  c.sum (fun g count ↦ (count : ℕ) • g.rank)
+
 namespace Chromosome
 
 section signature

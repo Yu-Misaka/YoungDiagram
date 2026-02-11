@@ -1,4 +1,6 @@
 import YoungDiagram.Chromosome
+import YoungDiagram.Variety
+import YoungDiagram.Mutations
 import Mathlib.Tactic
 
 namespace Sigma
@@ -235,4 +237,46 @@ lemma cond15_8 : (X Y : Chromosome) → (h : X ≤ Y) →
 
 end Sigma
 
-lemma theorem_6 : (X Y : Chromosome) → (hX : X ∈ Pi) → (hY : Y ∈ Pi)
+open Variety Mutation
+
+lemma rank_0 : (X : Chromosome) → (h : rank X = 0) → X = 0 := by
+  intro X h
+  rw [rank] at h
+  rw [Finsupp.sum] at h
+  have h' : ∀ a ∈ X.support, 1 ≤ a.rank := by
+    intro a
+    intro h''
+    exact a.rank_pos
+  apply Finsupp.ext
+  intro a
+  simp
+  simp_all
+
+lemma pi_0_is_nothing : (X : Chromosome) → (hX : X ∈ Pi_n 0) → X = 0 := by
+  intro X h
+  have h' : rank X = 0 := by
+    rw [Pi_n] at h
+    rw [Chromosome.varietyOfFilter_2] at h
+    simp at h
+    rw [Chromosome.IsFiltered_def'] at h
+    rw [Chromosome.IsFiltered_def'] at h
+    rw [rank]
+    have h'' := h.right
+    rw [Finsupp.sum]
+    refine Finset.sum_eq_zero ?_
+    intro g hg
+    simp [h'' g hg]
+  apply rank_0 X h'
+
+lemma theorem_6 : (n : ℕ) → (X Y : Chromosome) → (hX : X ∈ Pi_n n) → (hY : Y ∈ Pi_n n) →
+  (h : X < Y) → ∃ Z ∈ Pi, (IsMutation X Z) ∧ (Z ≤ Y) := by
+  intro n X Y hX hY hlt
+  induction n with
+  | zero =>
+    have x_0 := pi_0_is_nothing X hX
+    have y_0 := pi_0_is_nothing Y hY
+    rw [x_0, y_0] at hlt
+    have f : False := by
+      simp_all
+    exact False.elim f
+  | succ n ih => sorry
