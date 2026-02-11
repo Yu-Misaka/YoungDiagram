@@ -1,6 +1,8 @@
 import YoungDiagram.Chromosome
+import Mathlib.Tactic
 
-namespace Chromosome
+namespace Sigma
+open Chromosome
 
 noncomputable def sigma_k (c : Chromosome) (k : ℕ) : ℚ × ℚ :=
   signature (prime^[k] c)
@@ -106,14 +108,23 @@ lemma sig_rank_0_eq_0 : (X : Chromosome) → (h : maxRank X = 0) → signature X
   rw [this]
   simp
 
+lemma gene_rank_leq_chrom_maxRank : (X : Chromosome) → (g : Gene) → (h : X g ≠ 0) →
+  g.rank ≤ maxRank X := by
+  intro X g h
+  simp [maxRank]
+  apply Finset.le_sup
+  simp [h]
+
+lemma exist_gene_with_maxRank : (X : Chromosome) → (h : maxRank X = n + 1) →
+  ∃ g ∈ X.support, g.rank = n + 1:= by
+  intro X h
+  have h' : maxRank X > 0 := by
+    simp [h]
+  sorry
+
 lemma max_rank_prime_minus1 : (X : Chromosome) → (h : maxRank X = n + 1) →
   maxRank (prime X) = n := by
   intro X h
-  rw [maxRank]
-  rw [maxRank] at h
-  rw [prime]
-  simp
-  rw [Finsupp.sum]
   sorry
 
 lemma sig_prime_rank_eq_0 : ∀ k : ℕ, ∀ X : Chromosome, (h : maxRank X = k) →
@@ -222,4 +233,4 @@ lemma cond15_8 : (X Y : Chromosome) → (h : X ≤ Y) →
   intro X Y h k
   sorry
 
-end Chromosome
+end Sigma
