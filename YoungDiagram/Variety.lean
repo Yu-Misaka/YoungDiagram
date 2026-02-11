@@ -41,6 +41,11 @@ noncomputable def lift : Chromosome →+ Chromosome where
   map_add' _ _ := sum_add_index' (fun _ ↦ zero_nsmul _)
     fun _ _ _ ↦ add_nsmul ..
 
+lemma lift_ofRank {n : ℕ} {ε : GeneType} (hn : n ≠ 0) :
+    (Gene.ofRank n ε).lift = Gene.ofRank (n + 1) ε := by
+  rw [lift, Gene.ofRank_def]
+  simp [hn]; rfl
+
 abbrev below (X : Chromosome) (k : ℕ) : Chromosome := X.filter (·.rank ≤ k)
 
 abbrev above (X : Chromosome) (k : ℕ) : Chromosome := X.filter (k < ·.rank)
