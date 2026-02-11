@@ -228,12 +228,12 @@ lemma cond15_6_and_7_2 : (X : Chromosome) →
   ∀ k : ℕ, (sigma_k X k).2 - (sigma_k X (k+1)).2 ≥ (sigma_k X (k+1)).1 - (sigma_k X (k+2)).1 :=
   by sorry
 
--- lemma existence_of_mut_0 : (X Y : Chromosome) → (h : X < Y)
-
-lemma cond15_8 : (X Y : Chromosome) → (h : X ≤ Y) →
+lemma cond15_8 : (X Y : Chromosome) → (h : X < Y) →
   ∀ k : ℕ, sigma_k X k ≤ sigma_k Y k := by
   intro X Y h k
-  sorry
+  have h' : X ≤ Y := by exact le_of_lt h
+  simp [sigma_k]
+  exact le_iff_dominates.mp h' k
 
 end Sigma
 
