@@ -255,17 +255,10 @@ lemma rank_0 : (X : Chromosome) → (h : rank X = 0) → X = 0 := by
 lemma pi_0_is_nothing : (X : Chromosome) → (hX : X ∈ Pi_n 0) → X = 0 := by
   intro X h
   have h' : rank X = 0 := by
-    rw [Pi_n] at h
-    rw [Chromosome.varietyOfFilter_2] at h
-    simp at h
-    rw [Chromosome.IsFiltered_def'] at h
-    rw [Chromosome.IsFiltered_def'] at h
-    rw [rank]
-    have h'' := h.right
-    rw [Finsupp.sum]
-    refine Finset.sum_eq_zero ?_
-    intro g hg
-    simp [h'' g hg]
+    simp [Pi_n, Chromosome.varietyOfFilter, Chromosome.IsFiltered_def'] at h
+    rw [rank, Finsupp.sum]
+    refine Finset.sum_eq_zero fun g hg ↦ ?_
+    rw [(h g (Finsupp.mem_support_iff.1 hg)).2, smul_zero]
   apply rank_0 X h'
 
 lemma theorem_6 : (n : ℕ) → (X Y : Chromosome) → (hX : X ∈ Pi_n n) → (hY : Y ∈ Pi_n n) →
