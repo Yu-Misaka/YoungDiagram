@@ -29,6 +29,8 @@ lemma Gene.ofRankAlt_def {n : ℕ} {ε : GeneType} :
 
 @[simp] lemma Gene.ofRank_zero {ε : GeneType} : Gene.ofRank 0 ε = 0 := rfl
 
+@[simp] lemma Gene.ofRankAlt_zero {ε : GeneType} : Gene.ofRankAlt 0 ε = 0 := rfl
+
 lemma Gene.ofRank_eq_gene {g : Gene} :
     Gene.ofRank g.rank g.type = single g 1 := by
   rw [Gene.ofRank_def]
@@ -137,6 +139,13 @@ lemma signature_ofRank_negative_eq {k : ℕ} (hk : 1 ≤ k) :
   rw [← GeneType.neg_pos_eq_neg, signature_ofRank_swap,
     signature_ofRank_positive_eq hk, Prod.swap_add, ← signature_ofRank_swap]
   rfl
+
+lemma signature_ofRank_eq {k : ℕ} {ε : GeneType} (hk : 1 ≤ k) (hε : ε ≠ .NonPolarized) :
+    (Gene.ofRank k ε).signature =
+    (Gene.ofRank (k - 1) (- ε)).signature + (Gene.ofRank 1 ε).signature := by
+  match ε, hε with
+  | .Positive, _ => simp [signature_ofRank_positive_eq hk]
+  | .Negative, _ => simp [signature_ofRank_negative_eq hk]
 
 lemma signature_ofRank_positive_eq₂ {k : ℕ} (hk : 2 ≤ k) :
     (Gene.ofRank k .Positive).signature =

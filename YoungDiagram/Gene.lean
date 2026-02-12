@@ -27,14 +27,35 @@ instance : SMul ℤ GeneType where
 
 @[simp] lemma GeneType.one_smul {ε : GeneType} : (1 : ℤ) • ε = ε := rfl
 
-@[simp] lemma GeneType.neg_one_pow_smul {n : ℕ} {ε : GeneType} :
+lemma GeneType.neg_one_pow_smul {n : ℕ} {ε : GeneType} :
     (- 1) ^ n • ε = if Even n then ε else - ε := by
   split_ifs with h
   · simp [h]
   · simp [Nat.not_even_iff_odd.1 h]
 
+@[simp] lemma GeneType.neg_neg_one_pow_smul {n : ℕ} {ε : GeneType} :
+    - ((- 1) ^ n • ε) = (- 1) ^ (n + 1) • ε := by
+  simp_rw [neg_one_pow_smul, Nat.even_add_one]
+  split_ifs
+  · rfl
+  · exact neg_neg _
+
+@[simp] lemma GeneType.neg_one_pow_smul_neg {n : ℕ} {ε : GeneType} :
+    (- 1) ^ n • (- ε) = (- 1) ^ (n + 1) • ε := by
+  simp_rw [neg_one_pow_smul, Nat.even_add_one]
+  split_ifs
+  · rfl
+  · exact neg_neg _
+
 lemma GeneType.ne_nonPolarized_iff_neg_ne {ε : GeneType} :
     ε ≠ .NonPolarized ↔ - ε ≠ .NonPolarized := by cases ε <;> decide
+
+lemma GeneType.ne_nonPolarized_iff_one_pow_smul_ne {n : ℕ} {ε : GeneType} :
+    ε ≠ .NonPolarized ↔ (- 1) ^ n • ε ≠ .NonPolarized := by
+  rw [GeneType.neg_one_pow_smul]
+  split_ifs
+  · rfl
+  · exact GeneType.ne_nonPolarized_iff_neg_ne
 
 /--
 A gene is an isomorphism class of strings, defined by its rank (size) and type.
