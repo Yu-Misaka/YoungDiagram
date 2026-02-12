@@ -241,8 +241,7 @@ open Variety Mutation
 
 lemma rank_0 : (X : Chromosome) → (h : X.rank = 0) → X = 0 := by
   intro X h
-  rw [Chromosome.rank] at h
-  rw [Finsupp.sum] at h
+  simp [Chromosome.rank, Finsupp.sum] at h
   have h' : ∀ a ∈ X.support, 1 ≤ a.rank := by
     intro a
     intro h''
@@ -252,24 +251,13 @@ lemma rank_0 : (X : Chromosome) → (h : X.rank = 0) → X = 0 := by
   simp
   simp_all
 
-lemma pi_0_is_nothing : (X : Chromosome) → (hX : X ∈ Pi_n 0) → X = 0 := by
-  intro X h
-  have h' : X.rank = 0 := by
-    simp [Pi_n, Chromosome.varietyOfFilter, Chromosome.IsFiltered_def'] at h
-    rw [Chromosome.rank, Finsupp.sum]
-    refine Finset.sum_eq_zero fun g hg ↦ ?_
-    rw [(h g (Finsupp.mem_support_iff.1 hg)).2, smul_zero]
-  apply rank_0 X h'
-
-lemma theorem_6 : (n : ℕ) → (X Y : Chromosome) → (hX : X ∈ Pi_n n) → (hY : Y ∈ Pi_n n) →
+lemma theorem_6 : (n : ℕ) → (X Y : Chromosome) → (hX : X.rank = n) → (hY : Y.rank = n) →
   (h : X < Y) → ∃ Z ∈ Pi, (IsMutation X Z) ∧ (Z ≤ Y) := by
   intro n X Y hX hY hlt
-  induction n with
+  induction n generalizing X Y with
   | zero =>
-    have x_0 := pi_0_is_nothing X hX
-    have y_0 := pi_0_is_nothing Y hY
+    have x_0 := rank_0 X hX
+    have y_0 := rank_0 Y hY
     rw [x_0, y_0] at hlt
-    have f : False := by
-      simp_all
-    exact False.elim f
+    exact False.elim <| (Std.not_gt_of_lt hlt) hlt
   | succ n ih => sorry
