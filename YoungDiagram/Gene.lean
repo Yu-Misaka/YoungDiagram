@@ -57,6 +57,15 @@ lemma GeneType.neg_one_pow_smul' {n : ℕ} {ε : GeneType} :
     n.negOnePow • (- ε) = (n + 1).negOnePow • ε := by
   rw [← neg_one_pow_smul_smul]; rfl
 
+-- make this `@[simp]` causes error in MutationsAux.lean
+lemma GeneType.neg_smul {n : ℤ} {ε : GeneType} :
+    - n.negOnePow • ε = - (n.negOnePow • ε) := by
+  rw [← Int.negOnePow_succ, neg_neg_one_pow_smul]
+
+lemma GeneType.smul_neg {n : ℤ} {ε : GeneType} :
+    n.negOnePow • (- ε) = - (n.negOnePow • ε) := by
+  rw [neg_neg_one_pow_smul, neg_one_pow_smul_neg]
+
 lemma GeneType.ne_nonPolarized_iff_neg_ne {ε : GeneType} :
     ε ≠ .NonPolarized ↔ - ε ≠ .NonPolarized := by cases ε <;> decide
 
