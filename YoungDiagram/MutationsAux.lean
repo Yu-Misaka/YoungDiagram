@@ -122,13 +122,15 @@ lemma mutation_type3_ne {ε : GeneType}
   {m n : ℕ} (h_le : m ≤ n) (hm : 1 ≤ m) :
     (Gene.ofRankAlt m ε + Gene.ofRankAlt n (- ε)) ≠
     (Gene.ofRankAlt (m - 1) (- ε) + Gene.ofRankAlt (n + 1) ε) := by
-  simp [Gene.ofRankAlt, Gene.ofRank]
-  rcases m with ( _ | _ | m ) <;> rcases n with ( _ | _ | n ) <;> try omega
-  · intro h
-    simpa using congr_arg (· ⟨1, ε, hm⟩) h
-  · intro h
-    simpa using congr_arg (· ⟨1, ε, hm⟩) h
-  · intro h
+  dsimp [Gene.ofRankAlt, Gene.ofRank]
+  split_ifs <;> try omega
+  · expose_names
+    have eq1 : m = 1 := by omega
+    intro h
+    have := congr_arg (· ⟨1, ε, le_rfl⟩) h
+    simp [Finsupp.single_apply, eq1, h_1] at this
+  · expose_names
+    intro h
     have := congr_arg Finsupp.toMultiset h
     simp [Multiset.cons_eq_cons] at this
     omega
