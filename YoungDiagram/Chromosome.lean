@@ -18,14 +18,14 @@ noncomputable abbrev Gene.ofRank (n : ℕ) (ε : GeneType) : Chromosome :=
   else single ⟨n, ε, Nat.pos_of_ne_zero h⟩ 1
 
 noncomputable abbrev Gene.ofRankAlt (n : ℕ) (ε : GeneType) : Chromosome :=
-  Gene.ofRank n ((- 1) ^ (n - 1) • ε)
+  Gene.ofRank n (Int.negOnePow (n - 1) • ε)
 
 lemma Gene.ofRank_def {n : ℕ} {ε : GeneType} :
   Gene.ofRank n ε = if h : n = 0 then 0
     else single ⟨n, ε, Nat.pos_of_ne_zero h⟩ 1 := rfl
 
 lemma Gene.ofRankAlt_def {n : ℕ} {ε : GeneType} :
-  Gene.ofRankAlt n ε = Gene.ofRank n ((- 1) ^ (n - 1) • ε) := rfl
+  Gene.ofRankAlt n ε = Gene.ofRank n (Int.negOnePow (n - 1) • ε) := rfl
 
 @[simp] lemma Gene.ofRank_zero {ε : GeneType} : Gene.ofRank 0 ε = 0 := rfl
 

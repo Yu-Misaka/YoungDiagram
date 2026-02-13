@@ -190,20 +190,15 @@ private lemma mutation_type3_iterate_signature_eq_case1
   {ε : GeneType} (hε : ε ≠ .NonPolarized) {n : ℕ} (h_le : 1 ≤ n) :
     (Gene.ofRankAlt 1 ε + Gene.ofRankAlt n (- ε)).signature =
     (Gene.ofRankAlt (n + 1) ε).signature := by
-  simp [Gene.ofRankAlt_def, GeneType.neg_one_pow_smul]
-  conv =>
-    enter [2, 2, 2, 1]
-    rw [Nat.even_sub_one h_le]
+  simp [Gene.ofRankAlt_def, GeneType.neg_one_pow_smul']
   cases ε
   · absurd hε; rfl
   all_goals
     split_ifs with h1
-    · have := (iff_not_comm.1 (Nat.even_sub_one h_le)).1 h1
-      simp [signature_ofRank, show n ≠ 0 by omega, Gene.signature_eq_positive,
-        Gene.signature_eq_negative, Nat.even_add_one, this]; ring
-    · have := (Nat.even_sub_one h_le).2 h1
-      simp [signature_ofRank, show n ≠ 0 by omega, Gene.signature_eq_positive,
-        Gene.signature_eq_negative, Nat.even_add_one, this]; ring
+    · simp [signature_ofRank, show n ≠ 0 by omega, Gene.signature_eq_positive,
+       Gene.signature_eq_negative, Nat.even_add_one, h1]; ring
+    · simp [signature_ofRank, show n ≠ 0 by omega, Gene.signature_eq_positive,
+        Gene.signature_eq_negative, Nat.even_add_one, h1]; ring
 
 private lemma mutation_type3_iterate_signature_eq_case2 {ε : GeneType} (hε : ε ≠ .NonPolarized)
   {m n : ℕ} (h_le : m ≤ n) (hm : 1 < m) :
@@ -212,11 +207,11 @@ private lemma mutation_type3_iterate_signature_eq_case2 {ε : GeneType} (hε : �
   have m_neq : m ≠ 0 := Nat.ne_zero_of_lt hm
   replace h_m : m - 1 ≠ 0 := Nat.sub_ne_zero_iff_lt.2 hm
   have h_n : n ≠ 0 := Nat.ne_zero_of_lt <| Nat.lt_of_lt_of_le hm h_le
-  simp [Gene.ofRankAlt_def, signature_ofRank, h_n, m_neq, h_m, GeneType.neg_one_pow_smul]
-  have iff1 : Even (m - 1 - 1) ↔ ¬ Even (m - 1) := iff_not_comm.1 (Nat.even_sub_one (by omega))
-  have iff2 : Even (n - 1) ↔ ¬ Even n := iff_not_comm.1 (Nat.even_sub_one (by omega))
+  have m_cast : (m : ℤ) - 1 = ((m - 1 : ℕ) : ℤ) :=
+    (Nat.cast_pred (Nat.zero_lt_of_ne_zero m_neq)).symm
+  simp [Gene.ofRankAlt_def, signature_ofRank, h_n, m_neq, h_m, m_cast, GeneType.neg_one_pow_smul']
   have iff3 : Even (m - 1) ↔ ¬ Even m := iff_not_comm.1 (Nat.even_sub_one (by omega))
-  simp_rw [iff1, iff2, iff3, not_not]
+  simp_rw [iff3]
   match ε, hε with
   | .Positive, _ =>
     split_ifs with h1 h2 h3
@@ -235,12 +230,21 @@ private lemma mutation_type3_iterate_signature_eq_case2 {ε : GeneType} (hε : �
     · simp [Gene.signature_eq_negative, Gene.signature_eq_positive, h1, h3,
         Nat.even_add_one, iff3, hm.le]; ring
 
+private lemma mutation_type3_iterate_signature_eq_case3 {ε : GeneType} (hε : ε ≠ .NonPolarized)
+  {n : ℕ} (h_le : 1 ≤ n) (i k : ℕ) (hi : i ≤ k) :
+    (prime^[i] (Gene.ofRankAlt (1 + k) (Int.negOnePow k • ε) +
+      Gene.ofRankAlt (n + k) (Int.negOnePow k • - ε))).signature =
+    (prime^[i] (Gene.ofRankAlt (1 + k - 1) (Int.negOnePow k • - ε) +
+      Gene.ofRankAlt (n + k + 1) (Int.negOnePow k • ε))).signature := by
+  simp [Gene.ofRankAlt_def, prime_iterate_ofRank]
+  sorry
+
 lemma mutation_type3_iterate_signature_eq {ε : GeneType} (hε : ε ≠ .NonPolarized)
   {m n : ℕ} (h_le : m ≤ n) (hm : 1 ≤ m) (i k : ℕ) (hi : i ≤ k) :
-    (prime^[i] (Gene.ofRankAlt (m + k) ((- 1) ^ k • ε) +
-      Gene.ofRankAlt (n + k) ((- 1) ^ k • - ε))).signature =
-    (prime^[i] (Gene.ofRankAlt (m + k - 1) ((- 1) ^ k • - ε) +
-      Gene.ofRankAlt (n + k + 1) ((- 1) ^ k • ε))).signature := by
+    (prime^[i] (Gene.ofRankAlt (m + k) (Int.negOnePow k • ε) +
+      Gene.ofRankAlt (n + k) (Int.negOnePow k • - ε))).signature =
+    (prime^[i] (Gene.ofRankAlt (m + k - 1) (Int.negOnePow k • - ε) +
+      Gene.ofRankAlt (n + k + 1) (Int.negOnePow k • ε))).signature := by
   by_cases hk : k = 0 <;> by_cases h_m : m = 1
   · subst hk h_m
     simpa [Nat.eq_zero_of_le_zero hi] using mutation_type3_iterate_signature_eq_case1 hε h_le
@@ -248,6 +252,7 @@ lemma mutation_type3_iterate_signature_eq {ε : GeneType} (hε : ε ≠ .NonPola
     simpa [Nat.eq_zero_of_le_zero hi] using
       mutation_type3_iterate_signature_eq_case2 hε h_le (by omega)
   · subst h_m
+
     sorry
   · sorry
 

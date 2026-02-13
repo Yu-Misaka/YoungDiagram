@@ -1,4 +1,5 @@
 import YoungDiagram.ListAux
+import Mathlib.Algebra.Ring.NegOnePow
 
 inductive GeneType
   | NonPolarized
@@ -16,42 +17,51 @@ instance : InvolutiveNeg GeneType where
     | .NonPolarized => rfl
     | .Positive => rfl | .Negative => rfl
 
-instance : SMul ℤ GeneType where
+instance : SMul ℤˣ GeneType where
   smul n ε := if n = - 1 then - ε else ε
+
+instance : MulAction ℤˣ GeneType where
+  one_smul n := rfl
+  mul_smul m n ε := by
+    obtain ⟨h1 | h1, h2 | h2⟩ := And.intro (Int.units_eq_one_or m) (Int.units_eq_one_or n)
+    <;> subst h1 h2 <;> try rfl
+    change ε = - - ε
+    exact (neg_neg _).symm
 
 @[simp] lemma GeneType.neg_pos_eq_neg : - GeneType.Positive = .Negative := rfl
 
 @[simp] lemma GeneType.neg_neg_eq_pos : - GeneType.Negative = .Positive := rfl
 
-@[simp] lemma GeneType.neg_one_smul {ε : GeneType} : - 1 • ε = - ε := rfl
+@[simp] lemma GeneType.neg_one_smul {ε : GeneType} : (- 1 : ℤˣ) • ε = - ε := rfl
 
-@[simp] lemma GeneType.one_smul {ε : GeneType} : (1 : ℤ) • ε = ε := rfl
-
-lemma GeneType.neg_one_pow_smul {n : ℕ} {ε : GeneType} :
-    (- 1) ^ n • ε = if Even n then ε else - ε := by
+lemma GeneType.neg_one_pow_smul {n : ℤ} {ε : GeneType} :
+    n.negOnePow • ε = if Even n then ε else - ε := by
   split_ifs with h
-  · simp [h]
-  · simp [Nat.not_even_iff_odd.1 h]
+  · simp [(Int.negOnePow_eq_one_iff n).2 h]
+  · simp [(Int.negOnePow_eq_neg_one_iff n).2 (Int.not_even_iff_odd.1 h)]
 
-@[simp] lemma GeneType.neg_neg_one_pow_smul {n : ℕ} {ε : GeneType} :
-    - ((- 1) ^ n • ε) = (- 1) ^ (n + 1) • ε := by
-  simp_rw [neg_one_pow_smul, Nat.even_add_one]
-  split_ifs
-  · rfl
-  · exact neg_neg _
+lemma GeneType.neg_one_pow_smul' {n : ℕ} {ε : GeneType} :
+    (n : ℤ).negOnePow • ε = if Even n then ε else - ε := by
+  rw [GeneType.neg_one_pow_smul]
+  exact ite_cond_congr <| propext <| Int.even_coe_nat n
 
-@[simp] lemma GeneType.neg_one_pow_smul_neg {n : ℕ} {ε : GeneType} :
-    (- 1) ^ n • (- ε) = (- 1) ^ (n + 1) • ε := by
-  simp_rw [neg_one_pow_smul, Nat.even_add_one]
-  split_ifs
-  · rfl
-  · exact neg_neg _
+lemma GeneType.neg_one_pow_smul_smul {m n : ℤ} {ε : GeneType} :
+    (m + n).negOnePow • ε = m.negOnePow • n.negOnePow • ε := by
+  rw [Int.negOnePow_add, mul_smul]
+
+@[simp] lemma GeneType.neg_neg_one_pow_smul {n : ℤ} {ε : GeneType} :
+    - (n.negOnePow • ε) = (n + 1).negOnePow • ε := by
+  rw [add_comm, neg_one_pow_smul_smul]; rfl
+
+@[simp] lemma GeneType.neg_one_pow_smul_neg {n : ℤ} {ε : GeneType} :
+    n.negOnePow • (- ε) = (n + 1).negOnePow • ε := by
+  rw [neg_one_pow_smul_smul]; rfl
 
 lemma GeneType.ne_nonPolarized_iff_neg_ne {ε : GeneType} :
     ε ≠ .NonPolarized ↔ - ε ≠ .NonPolarized := by cases ε <;> decide
 
-lemma GeneType.ne_nonPolarized_iff_one_pow_smul_ne {n : ℕ} {ε : GeneType} :
-    ε ≠ .NonPolarized ↔ (- 1) ^ n • ε ≠ .NonPolarized := by
+lemma GeneType.ne_nonPolarized_iff_one_pow_smul_ne {n : ℤ} {ε : GeneType} :
+    ε ≠ .NonPolarized ↔ n.negOnePow • ε ≠ .NonPolarized := by
   rw [GeneType.neg_one_pow_smul]
   split_ifs
   · rfl
