@@ -40,23 +40,20 @@ lemma mutation_type1_le {ε : GeneType} (hε : ε ≠ .NonPolarized)
     (Gene.ofRank (m - 1) (- ε) + Gene.ofRank (n + 1) ε) := by
   intro k
   simp only [iterate_map_add, map_add, prime_iterate_ofRank]
-  by_cases hk1 : k < m
-  · rw [signature_ofRank_eq (by omega) hε, signature_ofRank_eq (k := n + 1 - k) (by omega) hε,
-      add_assoc, add_comm (signature (Gene.ofRank 1 ε)), ← add_assoc, ← add_assoc]
-    refine le_of_eq ?_
-    congr 4 <;> omega
-  by_cases hk2 : k < n
-  · rw [Nat.sub_right_comm, Nat.sub_eq_zero_of_le <| Nat.le_of_not_lt hk1,
-      Nat.zero_sub, signature_ofRank_zero, signature_ofRank_zero, zero_add,
-      zero_add, signature_ofRank_eq (k := n + 1 - k) (by omega) hε]
-    convert_to _ ≤ (Gene.ofRank (n - k) (- ε)).signature + signature (Gene.ofRank 1 ε)
-    · congr 3; omega
-    refine le_add_of_le_of_nonneg le_rfl (signature_nonneg _)
-  · rw [Nat.sub_right_comm, Nat.sub_eq_zero_of_le <| Nat.le_of_not_lt hk1,
-      Nat.zero_sub, signature_ofRank_zero, signature_ofRank_zero, zero_add,
-      zero_add, Nat.sub_eq_zero_of_le <| Nat.le_of_not_lt hk2,
-      signature_ofRank_zero]
+  by_cases hk1 : n < k
+  · have eq1 : m - 1 - k = 0 := by omega
+    simp [Nat.sub_eq_zero_iff_le.2 (h_le.trans hk1.le), eq1, Nat.sub_eq_zero_of_le hk1.le]
     exact signature_nonneg _
+  by_cases hk2 : m ≤ k
+  · have eq1 : m - 1 - k = 0 := by omega
+    rw [signature_ofRank_eq (k := n + 1 - k) (by omega) hε, Nat.succ_sub_sub_succ]
+    simp [Nat.sub_eq_zero_of_le hk2, eq1]
+    exact signature_nonneg _
+  · have le1 : 1 ≤ m - k := by omega
+    have le2 : 1 ≤ n + 1 - k := by omega
+    rw [signature_ofRank_eq le1 hε, signature_ofRank_eq le2 hε,
+      Nat.succ_sub_sub_succ, Nat.sub_zero, Nat.sub_right_comm]
+    exact le_of_eq (by ac_rfl)
 
 end type1_isMutation
 
@@ -189,9 +186,14 @@ lemma mutation_type3_signature_eq {ε : GeneType} (hε : ε ≠ .NonPolarized)
 lemma mutation_type3_le {ε : GeneType} (hε : ε ≠ .NonPolarized)
   {m n : ℕ} (h_le : m ≤ n) (hm : 1 ≤ m) :
     (Gene.ofRankAlt m ε + Gene.ofRankAlt n (- ε)) ≤
-    (Gene.ofRankAlt (m - 1) (- ε) + Gene.ofRankAlt (n + 1) ε) :=
-  match ε, hε with
-  | .Positive, _ => sorry
-  | .Negative, _ => sorry
+    (Gene.ofRankAlt (m - 1) (- ε) + Gene.ofRankAlt (n + 1) ε) := by
+  intro k
+  simp only [iterate_map_add, map_add, prime_iterate_ofRank]
+  by_cases hk1 : k < n
+  ·
+    sorry
+  by_cases hk2 : k < m
+  · sorry
+  · sorry
 
 end type3_isMutation
