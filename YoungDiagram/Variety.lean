@@ -46,9 +46,41 @@ lemma lift_ofRank {n : ℕ} {ε : GeneType} (hn : n ≠ 0) :
   rw [lift, Gene.ofRank_def]
   simp [hn]; rfl
 
-abbrev below (X : Chromosome) (k : ℕ) : Chromosome := X.filter (·.rank ≤ k)
+lemma lift_iterate_ofRank {k n : ℕ} {ε : GeneType} (hn : n ≠ 0) :
+    lift^[k] (Gene.ofRank n ε) = Gene.ofRank (n + k) ε := by
+  induction hk : k using Nat.strong_induction_on generalizing k
+  expose_names
+  subst hk
+  match k with
+  | 0 => rw [Function.iterate_zero_apply, add_zero]
+  | 1 => simp [lift_ofRank hn]
+  | w + 2 =>
+    specialize @h (w + 1) (Nat.lt_add_one _) (w + 1) rfl
+    change lift^[w + 1 + 1] (Gene.ofRank n ε) = _
+    rw [add_comm, Function.iterate_add_apply, Function.iterate_one, h, lift_ofRank]
+    · ac_rfl
+    · omega
 
-abbrev above (X : Chromosome) (k : ℕ) : Chromosome := X.filter (k < ·.rank)
+lemma lift_prime_iterate_ofRank {k n : ℕ} {ε : GeneType} (h : k < n) :
+    lift^[k] (prime^[k] (Gene.ofRank n ε)) = Gene.ofRank n ε := by
+  rw [prime_iterate_ofRank, lift_iterate_ofRank (Nat.sub_ne_zero_iff_lt.2 h),
+    Nat.sub_add_cancel h.le]
+
+def below (k : ℕ) : Chromosome →+ Chromosome where
+  toFun c := c.filter (·.rank ≤ k)
+  map_zero' := filter_zero _
+  map_add' _ _ := filter_add
+
+lemma below_def {k : ℕ} {X : Chromosome} :
+  X.below k = X.filter (·.rank ≤ k) := rfl
+
+def above (k : ℕ) : Chromosome →+ Chromosome where
+  toFun c := c.filter (k < ·.rank)
+  map_zero' := filter_zero _
+  map_add' _ _ := filter_add
+
+lemma above_def {k : ℕ} {X : Chromosome} :
+  X.above k = X.filter (k < ·.rank) := rfl
 
 lemma rank_decomposition (X : Chromosome) (k : ℕ) :
     X = X.below k + X.above k := by
@@ -82,15 +114,51 @@ lemma prime_lift_leftInverse : Function.LeftInverse prime lift := by
   induction x using Finsupp.induction with
   | zero => simp only [map_zero]
   | single_add a m f ha hm hf =>
-    rw [map_add, map_add, hf, add_left_inj]
-    simp [prime, lift, liftGene, primeGene]
-    split_ifs with h
-    · rw [← Gene.ofRank_eq_gene_smul, h, Gene.ofRank_zero, smul_zero]
-    · rfl
+    rw [map_add, map_add, hf, add_left_inj, ← Gene.ofRank_eq_gene_smul,
+      map_nsmul, map_nsmul]
+    by_cases ha : a.rank = 0
+    · rw [ha, Gene.ofRank_zero, map_zero, map_zero]
+    · rw [lift_ofRank ha, prime_ofRank, Nat.succ_sub_one]
 
 lemma prime_lift_leftInverse_iterate (k : ℕ) :
     Function.LeftInverse prime^[k] lift^[k] :=
   Function.LeftInverse.iterate prime_lift_leftInverse k
+
+lemma prime_below {k n : ℕ} {X : Chromosome} (h : n ≤ k) :
+    prime^[k] (X.below n) = 0 := by
+  induction X using Finsupp.induction with
+  | zero => rw [map_zero, iterate_map_zero]
+  | single_add a m f ha hm hf =>
+    rw [map_add, iterate_map_add, hf, add_zero, below_def]
+    by_cases ha : a.rank ≤ n
+    · have eq : a.rank - k = 0 := by omega
+      rwa [filter_single_of_pos, ← Gene.ofRank_eq_gene_smul, iterate_map_nsmul,
+        prime_iterate_ofRank, IsAddTorsionFree.nsmul_eq_zero_iff_right hm, eq,
+        Gene.ofRank_zero]
+    · rwa [filter_single_of_neg, iterate_map_zero]
+
+lemma lift_prime {k : ℕ} {X Y : Chromosome} :
+    prime^[k] X = Y ↔ X = lift^[k] Y + X.below k := by
+  constructor <;> intro h
+  · induction X using Finsupp.induction generalizing Y
+    · rw [iterate_map_zero] at h
+      rw [← h, iterate_map_zero, map_zero, add_zero]
+    · expose_names
+      rw [iterate_map_add] at h
+      nth_rw 1 [@h_3 (prime^[k] f) rfl, ← h, add_comm, add_comm _ (prime^[k] f),
+        iterate_map_add, add_assoc, add_assoc, add_right_inj, map_add,
+        ← add_assoc, add_comm _ ((below k) f), add_right_inj, below_def]
+      by_cases ha : a.rank ≤ k
+      · have eq : a.rank - k = 0 := by omega
+        rwa [filter_single_of_pos, ← Gene.ofRank_eq_gene_smul,
+          iterate_map_nsmul, iterate_map_nsmul, prime_iterate_ofRank, eq,
+          Gene.ofRank_zero, iterate_map_zero, nsmul_zero, zero_add]
+      · rwa [filter_single_of_neg, add_zero, ← Gene.ofRank_eq_gene_smul,
+          iterate_map_nsmul, iterate_map_nsmul, prime_iterate_ofRank,
+          lift_iterate_ofRank (Nat.sub_ne_zero_of_lt <| Nat.lt_of_not_le ha),
+          Nat.sub_add_cancel (Nat.le_of_not_ge ha)]
+  · rw [h, iterate_map_add, prime_lift_leftInverse_iterate k,
+      prime_below le_rfl, add_zero]
 
 end lift
 
@@ -580,5 +648,8 @@ noncomputable def Label.of_mem_prime_iterate {i : Fin 5} {k : ℕ} {X : Chromoso
   use Chromosome.prime^[k] X
   rw [Label.prime_eq_iterate]
   exact mem_prime_iterate hX
+
+lemma Label.prime_iterate_zero {k : ℕ} : Label.prime^[k] 0 = 0 :=
+  Function.iterate_fixed rfl k
 
 end Variety

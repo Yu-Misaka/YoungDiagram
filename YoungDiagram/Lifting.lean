@@ -4,29 +4,22 @@ open Chromosome Variety Mutation
 
 namespace Variety
 
-lemma Label.prime_iterate_zero {k : ℕ} : Label.prime^[k] 0 = 0 :=
-  Function.iterate_fixed rfl k
-
-end Variety
-
-namespace Mutation
-
 section Pi
 
 variable {k : ℕ} {X U : Chromosome} (hX : X ∈ Pi) (hU : U ∈ Pi)
 
 include hX in
-private lemma mem_Xk : Chromosome.prime^[k] X ∈ Pi :=
+private lemma Pi_mem_Xk : Chromosome.prime^[k] X ∈ Pi :=
   (Function.iterate_fixed prime_Pi _) ▸ (mem_prime_iterate hX (k := k))
 
-variable (hMu : Step 0 ⟨Chromosome.prime^[k] X, mem_Xk hX⟩ ⟨U, hU⟩)
+variable (hMu : Step 0 ⟨Chromosome.prime^[k] X, Pi_mem_Xk hX⟩ ⟨U, hU⟩)
 
 include hU hMu in
 private lemma Pi_mutation_lifting : ∃ (Z : Chromosome) (hZ : Z ∈ Pi),
     Step 0 ⟨X, hX⟩ ⟨Z, hZ⟩ ∧
     Chromosome.prime^[k] Z = U ∧
     ∀ i ≤ k, signature (Chromosome.prime^[i] X) = signature (Chromosome.prime^[i] Z) := by
-  generalize Xk_def : (⟨Chromosome.prime^[k] X, mem_Xk hX⟩ : Label 0) = Xk at hMu
+  generalize Xk_def : (⟨Chromosome.prime^[k] X, Pi_mem_Xk hX⟩ : Label 0) = Xk at hMu
   generalize U_def : (⟨U, hU⟩ : Label 0) = U' at hMu
   cases hMu with
   | mk α β γ h =>
@@ -47,11 +40,11 @@ private lemma Pi_mutation_lifting : ∃ (Z : Chromosome) (hZ : Z ∈ Pi),
     | @type2 ε hε m n hle hm =>
       sorry
     | @type3 ε hε m n hle hm =>
-  sorry
+      sorry
 
 end Pi
 
-end Mutation
+end Variety
 
 noncomputable section
 

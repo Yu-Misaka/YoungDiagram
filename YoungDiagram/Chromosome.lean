@@ -214,7 +214,7 @@ lemma prime_iterate_ofRank {k n : ℕ} {ε : GeneType} :
   expose_names
   subst hk
   match k with
-  | 0 => rw [Function.iterate_zero, id_eq, tsub_zero]
+  | 0 => rw [Function.iterate_zero_apply, tsub_zero]
   | 1 => simp [prime_ofRank]
   | w + 2 =>
     specialize @h (w + 1) (Nat.lt_add_one _) (w + 1) rfl

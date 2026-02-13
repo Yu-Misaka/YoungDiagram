@@ -1,30 +1,9 @@
 import YoungDiagram.MutationsAux
 import YoungDiagram.Variety
 
-namespace Mutation
-
 open Chromosome Variety
 
-structure IsMutation (X Y : Chromosome) : Prop where
-  le : X ≤ Y
-  ne : X ≠ Y
-  signature_eq : signature X = signature Y
-
-lemma IsMutation_add {X Y : Chromosome} (Z : Chromosome)
-    (h : IsMutation X Y) : IsMutation (X + Z) (Y + Z) where
-  le := add_le_add_right h.le Z
-  ne := by simp [h.ne]
-  signature_eq := by simp [h.signature_eq]
-
-lemma IsMutation_of_add {X Y Z : Chromosome}
-    (h : IsMutation (X + Z) (Y + Z)) : IsMutation X Y where
-  le := le_of_add_le_add_right h.le
-  ne := by simpa using h.ne
-  signature_eq := by simpa using h.signature_eq
-
-lemma IsMutation_iff_add {X Y Z : Chromosome} :
-    IsMutation (X + Z) (Y + Z) ↔ IsMutation X Y :=
-  ⟨IsMutation_of_add, IsMutation_add Z⟩
+namespace Variety
 
 namespace Pi
 
@@ -131,7 +110,33 @@ inductive Step : Pi → Pi → Prop
   | mk (X Y Z : Pi) (h : Primitive X Y) :
       Step (X + Z) (Y + Z)
 
-lemma Primitive.isMutation {X Y : Pi} (h : Primitive X Y) : IsMutation X Y := by
+end Pi
+
+end Variety
+
+structure Mutation.IsMutation (X Y : Chromosome) : Prop where
+  le : X ≤ Y
+  ne : X ≠ Y
+  signature_eq : signature X = signature Y
+
+lemma Mutation.IsMutation_add {X Y : Chromosome} (Z : Chromosome)
+    (h : IsMutation X Y) : IsMutation (X + Z) (Y + Z) where
+  le := add_le_add_right h.le Z
+  ne := by simp [h.ne]
+  signature_eq := by simp [h.signature_eq]
+
+lemma Mutation.IsMutation_of_add {X Y Z : Chromosome}
+    (h : IsMutation (X + Z) (Y + Z)) : IsMutation X Y where
+  le := le_of_add_le_add_right h.le
+  ne := by simpa using h.ne
+  signature_eq := by simpa using h.signature_eq
+
+lemma Mutation.IsMutation_iff_add {X Y Z : Chromosome} :
+    IsMutation (X + Z) (Y + Z) ↔ IsMutation X Y :=
+  ⟨IsMutation_of_add, IsMutation_add Z⟩
+
+lemma Variety.Pi.Primitive_isMutation {X Y : Pi} (h : Primitive X Y) :
+    Mutation.IsMutation X Y := by
   cases h with
   | type1 ε hε hle hm =>
     exact ⟨mutation_type1_le hε hle,
@@ -143,18 +148,15 @@ lemma Primitive.isMutation {X Y : Pi} (h : Primitive X Y) : IsMutation X Y := by
     exact ⟨mutation_type3_le hε hle hm,
       mutation_type3_ne hle hm, mutation_type3_signature_eq hε hle hm⟩
 
-lemma Step.isMutation {X Y : Pi} (h : Step X Y) : IsMutation X Y := by
+lemma Variety.Pi.Step_isMutation {X Y : Pi} (h : Step X Y) :
+    Mutation.IsMutation X Y := by
   cases h with
   | mk X Y Z h =>
-    exact IsMutation_add _ (Primitive.isMutation h)
+    exact Mutation.IsMutation_add _ (Primitive_isMutation h)
 
-end Pi
-
-def Step : (i : Fin 5) → (Label i) → (Label i) → Prop
+def Mutation.Step : (i : Fin 5) → (Label i) → (Label i) → Prop
   | 0 => Pi.Step
   | 1 => sorry
   | 2 => sorry
   | 3 => sorry
   | 4 => sorry
-
-end Mutation

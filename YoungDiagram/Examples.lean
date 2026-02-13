@@ -42,7 +42,7 @@ abbrev Y₁ := Gene.ofRank 6 .Negative +
 example : IsMutation X Y₁ := by
   rw [X, Y₁, add_comm, ← add_assoc, IsMutation_iff_add]
   have primMut := @Pi.Primitive.type1 .Negative (by decide) 1 5 NeZero.one_le NeZero.one_le
-  have := Pi.Primitive.isMutation primMut
+  have := Pi.Primitive_isMutation primMut
   simpa [Pi.Y1, Pi.X1] using this
 
 end example_of_mutation
