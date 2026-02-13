@@ -21,20 +21,11 @@ lemma mutation_type1_iterate_signature_eq {ε : GeneType} (hε : ε ≠ .NonPola
     (prime^[i] (Gene.ofRank (m + k) ε + Gene.ofRank (n + k) (- ε))).signature =
     (prime^[i] (Gene.ofRank (m + k - 1) (- ε) + Gene.ofRank (n + k + 1) ε)).signature := by
   rw [iterate_map_add, iterate_map_add, prime_iterate_ofRank, prime_iterate_ofRank,
-      prime_iterate_ofRank, prime_iterate_ofRank, map_add, map_add]
-  match ε, hε with
-  | .Positive, _ =>
-    rw [signature_ofRank_positive_eq (k := (m + k - i)) (by omega),
-      signature_ofRank_positive_eq (k := (n + k + 1 - i)) (by omega),
-      GeneType.neg_pos_eq_neg, Nat.sub_right_comm,
-      show n + k + 1 - i - 1 = n + k - i by exact Nat.succ_sub_succ_eq_sub (n + k) i]
-    ac_rfl
-  | .Negative, _ =>
-    rw [signature_ofRank_negative_eq (k := (m + k - i)) (by omega),
-      signature_ofRank_negative_eq (k := (n + k + 1 - i)) (by omega),
-      GeneType.neg_neg_eq_pos, Nat.sub_right_comm,
-      show n + k + 1 - i - 1 = n + k - i by exact Nat.succ_sub_succ_eq_sub (n + k) i]
-    ac_rfl
+    prime_iterate_ofRank, prime_iterate_ofRank, map_add, map_add,
+    signature_ofRank_eq (k := (m + k - i)) (by omega) hε,
+    signature_ofRank_eq (k := (n + k + 1 - i)) (by omega) hε, Nat.sub_right_comm,
+    show n + k + 1 - i - 1 = n + k - i by exact Nat.succ_sub_succ_eq_sub (n + k) i]
+  ac_rfl
 
 lemma mutation_type1_signature_eq {ε : GeneType} (hε : ε ≠ .NonPolarized)
   {m n : ℕ} (h_le : m ≤ n) (hm : 1 ≤ m) :
@@ -129,18 +120,11 @@ lemma mutation_type2_iterate_signature_eq {ε : GeneType} (hε : ε ≠ .NonPola
     (prime^[i] (Gene.ofRank (m + k) ε + Gene.ofRank (n + k) ε)).signature =
     (prime^[i] (Gene.ofRank (m + k - 2) ε + Gene.ofRank (n + k + 2) ε)).signature := by
   rw [iterate_map_add, iterate_map_add, prime_iterate_ofRank, prime_iterate_ofRank,
-    prime_iterate_ofRank, prime_iterate_ofRank, map_add, map_add]
-  match ε, hε with
-  | .Positive, _ =>
-    rw [signature_ofRank_positive_eq₂ (k := (m + k - i)) (by omega),
-      signature_ofRank_positive_eq₂ (k := (n + k + 2 - i)) (by omega),
-      Nat.sub_right_comm, show n + k + 2 - i - 2 = n + k - i by omega]
-    ac_rfl
-  | .Negative, hε =>
-    rw [signature_ofRank_eq₂ (k := (m + k - i)) (by omega) hε,
-      signature_ofRank_eq₂ (k := (n + k + 2 - i)) (by omega) hε,
-      Nat.sub_right_comm, show n + k + 2 - i - 2 = n + k - i by omega]
-    ac_rfl
+    prime_iterate_ofRank, prime_iterate_ofRank, map_add, map_add,
+    signature_ofRank_eq₂ (k := (m + k - i)) (by omega) hε,
+    signature_ofRank_eq₂ (k := (n + k + 2 - i)) (by omega) hε, Nat.sub_right_comm,
+    show n + k + 2 - i - 2 = n + k - i by omega]
+  ac_rfl
 
 lemma mutation_type2_signature_eq {ε : GeneType} (hε : ε ≠ .NonPolarized)
   {m n : ℕ} (h_le : m ≤ n) (hm : 1 < m) :
@@ -227,8 +211,7 @@ private lemma mutation_type3_iterate_signature_eq_case3 {ε : GeneType} (hε : �
   rw [← Nat.cast_add, ← Nat.cast_add, ← Nat.cast_add, ← Nat.mul_two, add_assoc, ← Nat.mul_two,
     mul_comm, Nat.cast_mul, Nat.cast_two, Int.negOnePow_two_mul, one_smul, Nat.cast_add,
     Int.negOnePow_add, Nat.cast_mul, Nat.cast_two, Int.negOnePow_two_mul, mul_one,
-    GeneType.neg_one_pow_smul', signature_ofRank_eq' (k := 1 + k - i) le1 hε,
-    signature_ofRank_eq' (k := n + k + 1 - i) le2, eq1, eq2,
+    GeneType.neg_one_pow_smul', signature_ofRank_eq' le1 hε, signature_ofRank_eq' le2, eq1, eq2,
     add_assoc (signature (Gene.ofRank (k - i) ε)), add_right_inj,
     add_comm _ (signature (Gene.ofRank (n + k - i) _)), add_right_inj, Nat.add_sub_assoc hi,
     add_comm 1, add_comm (n + k), Nat.add_sub_assoc (by omega), add_comm 1]
