@@ -170,71 +170,48 @@ lemma mutation_type3_ne {ε : GeneType}
     simp [Multiset.cons_eq_cons] at this
     omega
 
-private lemma mutation_type3_iterate_signature_eq_case1
-  {ε : GeneType} (hε : ε ≠ .NonPolarized) {n : ℕ} (h_le : 1 ≤ n) :
-    (Gene.ofRankAlt 1 ε + Gene.ofRankAlt n (- ε)).signature =
-    (Gene.ofRankAlt (n + 1) ε).signature := by
-  simp [Gene.ofRankAlt_def]
-  rw [signature_ofRank_eq' (k := n + 1) (by omega)
-    (GeneType.ne_nonPolarized_iff_one_pow_smul_ne.1 hε), Nat.add_sub_cancel,
-    add_comm (signature (Gene.ofRank 1 ε)), add_right_inj]
-  simp_rw [GeneType.neg_one_pow_smul', Nat.even_add_one]
-  split_ifs <;> first | rfl | rw [neg_neg]
-
-private lemma mutation_type3_iterate_signature_eq_case2 {ε : GeneType} (hε : ε ≠ .NonPolarized)
-  {m n : ℕ} (hm : 1 < m) :
-    (Gene.ofRankAlt m ε + Gene.ofRankAlt n (- ε)).signature =
-    (Gene.ofRankAlt (m - 1) (- ε) + Gene.ofRankAlt (n + 1) ε).signature := by
-  have m_neq : m ≠ 0 := Nat.ne_zero_of_lt hm
-  have m_cast : (m : ℤ) - 1 = ((m - 1 : ℕ) : ℤ) :=
-    (Nat.cast_pred (Nat.zero_lt_of_ne_zero m_neq)).symm
-  simp [Gene.ofRankAlt_def, m_cast]
-  rw [signature_ofRank_eq' hm.le (GeneType.ne_nonPolarized_iff_one_pow_smul_ne.1 hε),
-  signature_ofRank_eq' (k := n + 1) (by omega) (GeneType.ne_nonPolarized_iff_one_pow_smul_ne.1 hε),
-  Nat.add_sub_cancel, add_assoc, add_right_inj, add_comm (signature (Gene.ofRank n _)),
-  add_left_inj]
-  simp_rw [GeneType.neg_one_pow_smul', Nat.even_sub_one hm.le, @Nat.even_sub_one (n + 1) (by omega),
-    Nat.add_sub_cancel]
-  split_ifs <;> first | rfl | rw [neg_neg]
-
-private lemma mutation_type3_iterate_signature_eq_case3 {ε : GeneType} (hε : ε ≠ .NonPolarized)
-  {n : ℕ} (h_le : 1 ≤ n) (i k : ℕ) (hi : i ≤ k) :
-    (prime^[i] (Gene.ofRankAlt (1 + k) (Int.negOnePow k • ε) +
-      Gene.ofRankAlt (n + k) (Int.negOnePow k • - ε))).signature =
-    (prime^[i] (Gene.ofRankAlt (1 + k - 1) (Int.negOnePow k • - ε) +
-      Gene.ofRankAlt (n + k + 1) (Int.negOnePow k • ε))).signature := by
-  simp [Gene.ofRankAlt_def, prime_iterate_ofRank]
-  have le1 : 1 ≤ 1 + k - i := by omega
-  have le2 : 1 ≤ n + k + 1 - i := by omega
-  have eq1 : 1 + k - i - 1 = k - i := by omega
-  have eq2 : n + k + 1 - i - 1 = n + k - i := by omega
-  rw [← Nat.cast_add, ← Nat.cast_add, ← Nat.cast_add, ← Nat.mul_two, add_assoc, ← Nat.mul_two,
-    mul_comm, Nat.cast_mul, Nat.cast_two, Int.negOnePow_two_mul, one_smul, Nat.cast_add,
-    Int.negOnePow_add, Nat.cast_mul, Nat.cast_two, Int.negOnePow_two_mul, mul_one,
-    GeneType.neg_one_pow_smul', signature_ofRank_eq' le1 hε, signature_ofRank_eq' le2, eq1, eq2,
-    add_assoc (signature (Gene.ofRank (k - i) ε)), add_right_inj,
-    add_comm _ (signature (Gene.ofRank (n + k - i) _)), add_right_inj, Nat.add_sub_assoc hi,
-    add_comm 1, add_comm (n + k), Nat.add_sub_assoc (by omega), add_comm 1]
-  · simp_rw [Nat.even_add_one, @Nat.add_sub_assoc k i hi, Nat.even_add, not_iff,
-      iff_iff_and_or_not_and_not, not_not, ite_or, ite_and]
-    split_ifs <;> first | rfl | rw [neg_neg]
-  · rwa [← GeneType.neg_one_pow_smul', ← GeneType.ne_nonPolarized_iff_one_pow_smul_ne]
-
 lemma mutation_type3_iterate_signature_eq {ε : GeneType} (hε : ε ≠ .NonPolarized)
   {m n : ℕ} (h_le : m ≤ n) (hm : 1 ≤ m) (i k : ℕ) (hi : i ≤ k) :
     (prime^[i] (Gene.ofRankAlt (m + k) (Int.negOnePow k • ε) +
       Gene.ofRankAlt (n + k) (Int.negOnePow k • - ε))).signature =
     (prime^[i] (Gene.ofRankAlt (m + k - 1) (Int.negOnePow k • - ε) +
       Gene.ofRankAlt (n + k + 1) (Int.negOnePow k • ε))).signature := by
-  by_cases hk : k = 0 <;> by_cases h_m : m = 1
-  · subst hk h_m
-    simpa [Nat.eq_zero_of_le_zero hi] using mutation_type3_iterate_signature_eq_case1 hε h_le
-  · subst hk
-    simpa [Nat.eq_zero_of_le_zero hi] using
-      mutation_type3_iterate_signature_eq_case2 hε (by omega)
-  · subst h_m
-    exact mutation_type3_iterate_signature_eq_case3 hε h_le i k hi
-  · sorry
+  simp [Gene.ofRankAlt_def, prime_iterate_ofRank]
+  have le1 : 1 ≤ m + k - i := by omega
+  have le2 : 1 ≤ n + k + 1 - i := by omega
+  rw [signature_ofRank_eq' le1 (GeneType.ne_nonPolarized_iff_one_pow_smul_ne.1 hε),
+    signature_ofRank_eq' le2 (GeneType.ne_nonPolarized_iff_one_pow_smul_ne.1 hε),
+    Nat.sub_right_comm, Nat.cast_sub (by omega), Nat.cast_add, Nat.cast_one, add_assoc,
+    add_right_inj, Nat.succ_sub_sub_succ, Nat.sub_zero,
+    add_comm (signature (Gene.ofRank (n + k - i) _)), add_left_inj]
+  convert_to (if Even (m + k - i) then signature (Gene.ofRank 1 ((m + 2 * k : ℤ).negOnePow • ε))
+    else signature (Gene.ofRank 1 ((m - 1 + 2 * k : ℤ).negOnePow • ε))) =
+      if Even (n + k + 1 - i) then signature (Gene.ofRank 1 (-((n + 2 * k : ℤ).negOnePow • ε)))
+    else signature (Gene.ofRank 1 ((n + 2 * k : ℤ).negOnePow • ε))
+  · congr 5
+    · rw [GeneType.neg_neg_one_pow_smul]
+      congr 2; omega
+    · omega
+  · congr 5 <;> rw [two_mul, add_assoc]
+  · simp [Int.negOnePow_add, Int.negOnePow_two_mul, Int.negOnePow_sub]
+    have iff1 := @Nat.even_sub (n + k + 1 - i) (m + k - i) (by omega)
+    rw [show n + k + 1 - i - (m + k - i) = n + 1 - m by omega] at iff1
+    split_ifs with h1 h2 h3
+    · congr
+      rw [← Int.negOnePow_succ, Int.negOnePow_eq_iff, ← even_neg, neg_sub, ← Nat.cast_one,
+        ← Nat.cast_add, ← Nat.cast_sub (Nat.le_add_right_of_le h_le), Int.even_coe_nat, iff1]
+      exact (iff_true_right h1).2 h2
+    · congr 3
+      rw [Int.negOnePow_eq_iff, ← even_neg, neg_sub, ← Nat.cast_sub h_le, Int.even_coe_nat]
+      simpa [Nat.succ_sub h_le, Nat.even_add_one, h1, h2] using iff1
+    · congr 4
+      rw [Int.negOnePow_eq_iff, ← even_neg, neg_sub, ← Nat.cast_sub h_le, Int.even_coe_nat]
+      simpa [Nat.succ_sub h_le, Nat.even_add_one, h1, h3] using iff1
+    · congr
+      rw [← Int.negOnePow_succ, Int.negOnePow_eq_iff, Int.even_sub, Int.even_add_one, iff_comm]
+      contrapose!
+      simpa [h1, h3, ← Int.even_coe_nat, Nat.le_add_right_of_le h_le,
+        Int.even_sub, Int.even_add_one] using iff1
 
 lemma mutation_type3_signature_eq {ε : GeneType} (hε : ε ≠ .NonPolarized)
   {m n : ℕ} (h_le : m ≤ n) (hm : 1 ≤ m) :
