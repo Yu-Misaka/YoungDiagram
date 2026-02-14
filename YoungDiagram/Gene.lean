@@ -117,27 +117,31 @@ def Gene.signature (g : Gene) : ℚ × ℚ :=
 
 lemma Gene.signature_eq_nonPolarized {g : Gene} (hg : g.type = .NonPolarized) :
     g.signature = ((g.rank : ℚ) / 2, (g.rank : ℚ) / 2) := by
-  simp [Gene.signature]
-  split <;> simp_all only [reduceCtorEq]
+  unfold Gene.signature
+  split <;> first | rfl | rw [hg] at *; contradiction
 
 lemma Gene.signature_eq_positive {g : Gene} (hg : g.type = .Positive) :
   g.signature =
     if Even g.rank then ((g.rank : ℚ) / 2, (g.rank : ℚ) / 2)
     else (((g.rank : ℚ) + 1) / 2, ((g.rank : ℚ) - 1) / 2) := by
-  simp [Gene.signature]
-  split <;> simp_all only [reduceCtorEq]
-  next hg =>
-    simp [Gene.toList, hg]
+  unfold Gene.signature
+  split
+  · rw [hg] at *; contradiction
+  · next hg =>
+    simp only [toList, hg, List.count_reverse]
     exact count_iterate_not_true
+  · rw [hg] at *; contradiction
 
 lemma Gene.signature_eq_negative {g : Gene} (hg : g.type = .Negative) :
   g.signature =
     if Even g.rank then ((g.rank : ℚ) / 2, (g.rank : ℚ) / 2)
     else (((g.rank : ℚ) - 1) / 2, ((g.rank : ℚ) + 1) / 2) := by
-  simp [Gene.signature]
-  split <;> simp_all only [reduceCtorEq]
+  unfold Gene.signature
+  split
+  · rw [hg] at *; contradiction
+  · rw [hg] at *; contradiction
   next hg =>
-    simp [Gene.toList, hg]
+    simp only [toList, hg, List.count_reverse]
     exact count_iterate_not_false
 
 lemma Gene.signature_pos (g : Gene) : 0 < g.signature := by
