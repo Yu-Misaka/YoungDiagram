@@ -42,6 +42,15 @@ lemma Gene.ofRank_eq_gene_smul {g : Gene} {m : ℕ} :
     m • Gene.ofRank g.rank g.type = single g m := by
   rw [← smul_single_one, ofRank_eq_gene]
 
+lemma Gene.ofRankAlt_shift_negOnePow_smul {n k : ℕ} {ε : GeneType} :
+  Gene.ofRankAlt (n + k) (Int.negOnePow k • ε) =
+    Gene.ofRank (n + k) (Int.negOnePow (n - 1) • ε) := by
+  unfold Gene.ofRankAlt
+  congr 1
+  rw [GeneType.neg_one_pow_smul_smul, Nat.cast_add, sub_add_eq_add_sub,
+    add_assoc, ← two_mul, add_comm, add_sub_assoc, Int.negOnePow_add,
+    Int.negOnePow_two_mul, one_mul]
+
 namespace Chromosome
 
 def maxRank (c : Chromosome) : ℕ :=

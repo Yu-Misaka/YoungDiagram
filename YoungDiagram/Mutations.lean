@@ -93,6 +93,9 @@ def Y3 : Pi := by
   | m + 2 => rwa [IsPolarized_ofRankAlt (by omega),
     GeneType.ne_nonPolarized_iff_neg_ne, neg_neg]
 
+lemma Y3_eq : Y3 hε hle hm =
+  Gene.ofRankAlt (m - 1) (- ε) + Gene.ofRankAlt (n + 1) ε := rfl
+
 end type3
 
 inductive Primitive : Pi → Pi → Prop

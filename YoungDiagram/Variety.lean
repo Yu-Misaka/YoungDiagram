@@ -48,18 +48,10 @@ lemma lift_ofRank {n : ℕ} {ε : GeneType} (hn : n ≠ 0) :
 
 lemma lift_iterate_ofRank {k n : ℕ} {ε : GeneType} (hn : n ≠ 0) :
     lift^[k] (Gene.ofRank n ε) = Gene.ofRank (n + k) ε := by
-  induction hk : k using Nat.strong_induction_on generalizing k
-  expose_names
-  subst hk
-  match k with
-  | 0 => rw [Function.iterate_zero_apply, add_zero]
-  | 1 => simp [lift_ofRank hn]
-  | w + 2 =>
-    specialize @h (w + 1) (Nat.lt_add_one _) (w + 1) rfl
-    change lift^[w + 1 + 1] (Gene.ofRank n ε) = _
-    rw [add_comm, Function.iterate_add_apply, Function.iterate_one, h, lift_ofRank]
-    · ac_rfl
-    · omega
+  induction k with
+  | zero => rfl
+  | succ k hk => rw [Function.iterate_succ_apply', hk,
+    lift_ofRank (by omega), add_assoc]
 
 lemma lift_prime_iterate_ofRank {k n : ℕ} {ε : GeneType} (h : k < n) :
     lift^[k] (prime^[k] (Gene.ofRank n ε)) = Gene.ofRank n ε := by
