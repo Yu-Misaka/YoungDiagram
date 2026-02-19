@@ -153,10 +153,42 @@ lemma exist_gene_with_maxRank : (X : Chromosome) → (h : maxRank X = n + 1) →
       rw [maxRank]
     simpa [h] using this
 
+lemma rank_of_geneOfRank {typ : GeneType} : (Gene.ofRank n typ).rank = n := by
+  rw [Gene.ofRank]
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    simp [rank]
+
+lemma prime_gene_rank : (n : ℕ) → (g : Gene) → (h : g.rank = n + 1) → (primeGene g).rank ≤ n := by
+  intro n g h
+  induction n with
+  | zero =>
+    simp at h
+    simp [primeGene, h]
+  | succ k ih =>
+    simp [primeGene, h]
+    rw [rank_of_geneOfRank]
+
 lemma max_rank_prime_minus1 : (X : Chromosome) → (h : maxRank X = n + 1) →
   maxRank (prime X) = n := by
   intro X h
-  sorry
+  simp [prime]
+  have gene_n_1 : ∃ g ∈ X.support, g.rank = n + 1 := by
+    apply exist_gene_with_maxRank X h
+  obtain ⟨g, hg_mem, hg_rank⟩ := gene_n_1
+  have h_1 :(Finsupp.sum X fun g m ↦ m • primeGene g).maxRank ≤ n := by
+    apply Finset.sup_le
+    intro g' hg'
+    have hg'_ne : (prime X) g' ≠ 0 := Finsupp.mem_support_iff.mp hg'
+    sorry
+
+  have h_2 :(Finsupp.sum X fun g m ↦ m • primeGene g).maxRank ≥ n := by
+    have : (primeGene g).rank = n := by
+      sorry
+    sorry
+
+  exact le_antisymm h_1 h_2
 
 lemma sig_prime_rank_eq_0 : ∀ k : ℕ, ∀ X : Chromosome, (h : maxRank X = k) →
   signature (prime^[k] X) = (0,0) := by
