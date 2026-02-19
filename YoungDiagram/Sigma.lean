@@ -87,8 +87,10 @@ lemma if_0_then_next_is_zero_2 : (X : Chromosome) → (k : ℕ) → (sigma_k X k
 -- Maybe move this to chromosome?
 lemma sig_rank_0_eq_0_gene : (g : Gene) → (h : g.rank = 0) → g.signature = (0, 0) := by
   intro g h
-  have h' : g.rank/2 = 0 := by simp [h]
-  sorry
+  have h' : False := by
+    have := g.rank_pos
+    simp [h] at this
+  cases h'
 
 lemma sig_rank_0_eq_0 : (X : Chromosome) → (h : maxRank X = 0) → signature X = 0 := by
   intro X h
@@ -260,4 +262,4 @@ lemma theorem_6 : (n : ℕ) → (X Y : Chromosome) → (hX : X.rank = n) → (hY
     have y_0 := rank_0 Y hY
     rw [x_0, y_0] at hlt
     exact False.elim <| (Std.not_gt_of_lt hlt) hlt
-  | succ n ih => sorry
+  | succ n ih =>
