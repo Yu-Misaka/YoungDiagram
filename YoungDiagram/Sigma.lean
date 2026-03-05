@@ -239,13 +239,15 @@ lemma cond15_2_and_3 : ∀ k : ℕ, ∀ X : Chromosome, (sigma_k X k) ≥ (sigma
 
 lemma signature_of_zero : (X : Chromosome) → (X = 0) → signature X = (0, 0) := by
   intro X h
-  rw [signature]
-  simp only [AddMonoidHom.coe_mk, ZeroHom.coe_mk]
-  rw [h]
-  sorry
-  -- i keep getting sum 0 = 0 instead of sum 0 = (0, 0)
+  subst h
+  change signature 0 = (0 : ℚ × ℚ)
+  simp
 
-lemma sig_of_prime_lt_sig : (k : ℕ) → (X: Chromosome)
+lemma sig_of_prime_lt_sig : (X : Chromosome) → signature X ≥ signature (prime X) := by
+  intro X
+  sorry
+
+lemma sig_of_prime_k_lt_sig : (k : ℕ) → (X: Chromosome)
   → signature X ≥ signature (prime^[k] X) := by
   intro k
   induction k with
@@ -254,9 +256,8 @@ lemma sig_of_prime_lt_sig : (k : ℕ) → (X: Chromosome)
     simp
   | succ n ih =>
     intro X
-    have h : signature (prime^[n] X) ≥ signature (prime^[n+1] X) := by
-      sorry --just apply ih on prime X, but I can seem to get it to work
-    exact ge_trans (ih X) h
+    simp [Function.iterate_succ_apply]
+    exact ge_trans (sig_of_prime_lt_sig X) (ih (prime X))
 
 -- 1 is a_i > b_{i+1}
 lemma cond15_4_and_5_1 : ∀ k : ℕ, ∀ X : Chromosome,
