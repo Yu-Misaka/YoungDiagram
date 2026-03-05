@@ -295,15 +295,6 @@ lemma cond15_6_and_7_2 : (X : Chromosome) →
   ∀ k : ℕ, (sigma_k X k).2 - (sigma_k X (k+1)).2 ≥ (sigma_k X (k+1)).1 - (sigma_k X (k+2)).1 :=
   by sorry
 
-lemma cond15_8 : (X Y : Chromosome) → (h : X < Y) →
-  ∀ k : ℕ, sigma_k X k ≤ sigma_k Y k := by
-  intro X Y h k
-  have h' : X ≤ Y := by exact le_of_lt h
-  simp only [sigma_k, ge_iff_le]
-  exact le_iff_dominates.mp h' k
-
-end Sigma
-
 open Variety Mutation
 
 lemma rank_0 : (X : Chromosome) → (h : X.rank = 0) → X = 0 := by
@@ -317,14 +308,75 @@ lemma rank_0 : (X : Chromosome) → (h : X.rank = 0) → X = 0 := by
   simp
   simp_all
 
-lemma theorem_6 : (n : ℕ) → (X Y : Chromosome) → (hX : X.rank = n) → (hY : Y.rank = n) →
+-- Im actually not sure how to prove this case,
+-- if n = 1, we don't have any mutations?
+lemma t6_rank_1 : (X Y : Pi) → (hX : rank X = 1) → (hY : rank Y = 1) →
+  (h : X < Y) → (IsMutation X Y) ∧ (Y ≤ Y) := by
+  intro X Y hX hY hlt
+  constructor
+  · sorry
+  · rfl
+
+lemma theorem_6 : (n : ℕ) → (X Y : Pi) → (hX : rank X = n) → (hY : rank Y = n) →
   (h : X < Y) → ∃ Z ∈ Pi, (IsMutation X Z) ∧ (Z ≤ Y) := by
-  intro n X Y hX hY hlt
-  induction n generalizing X Y with
+  intro n
+  refine Nat.strong_induction_on n ?_
+  intro k ih
+  cases k with
   | zero =>
+    intro X Y hX hY hlt
     have x_0 := rank_0 X hX
+    have x0 : X = 0 := by simpa using x_0
     have y_0 := rank_0 Y hY
-    rw [x_0, y_0] at hlt
+    have y0 : Y = 0 := by simpa using y_0
+    rw [x0, y0] at hlt
     exact False.elim <| (Std.not_gt_of_lt hlt) hlt
-  | succ n ih =>
-    sorry
+  | succ k =>
+    cases k with
+    | zero => --n = 1
+      intro X Y hX hY hlt
+      use Y
+      constructor
+      · exact Y.property
+      · exact t6_rank_1 X Y hX hY hlt
+    | succ k => sorry
+
+lemma step15_8 : (X Y : Pi) → (h : X < Y) →
+  ∀ k : ℕ, sigma_k X k ≤ sigma_k Y k := by
+  intro X Y h k
+  have h' : X ≤ Y := by exact le_of_lt h
+  simp only [sigma_k, ge_iff_le]
+  exact le_iff_dominates.mp h' k
+
+lemma sig_sum_eq_rank : (n : ℕ) → (X : Pi) → (hX : rank X = n) →
+  (signature X).1 + (signature X).2 = n := by
+  intro n
+  induction n with
+  | zero => sorry
+  | succ k ih => sorry
+
+lemma sigma_0_sum_eq_rank : (n : ℕ) → (X : Pi) → (hX : rank X = n) →
+  (sigma_k X 0).1 + (sigma_k X 0).2 = n := by
+  intro n X hX
+  simp [sigma_k, sig_sum_eq_rank]
+  simp_all
+
+lemma step15_8_ext : (n : ℕ) → (X Y : Pi) → (hX : rank X = n) → (hY : rank Y = n) → (h : X < Y) →
+  (sigma_k X 0) = (sigma_k Y 0) := by
+  intro n X Y hX hY hlt
+  have h15_8 := step15_8 X Y hlt 0
+  have sig_sum_X := sigma_0_sum_eq_rank n X hX
+  simp [sigma_k] at sig_sum_X
+  have sig_sum_Y := sigma_0_sum_eq_rank n Y hY
+  simp [sigma_k] at sig_sum_Y
+  have sig_sum_X_eq_Y : (signature X).1 + (signature X).2 = (signature Y).1 + (signature Y).2 := by
+    simp_all
+  have sig_1 : (signature X).1 ≤ (signature Y).1 := by exact h15_8.1
+  have sig_2 : (signature X).2 ≤ (signature Y).2 := by exact h15_8.2
+  have eq_1 : (signature X).1 = (signature Y).1 := by linarith
+  have eq_2 : (signature X).2 = (signature Y).2 := by linarith
+  ext
+  · exact eq_1
+  · exact eq_2
+
+end Sigma
