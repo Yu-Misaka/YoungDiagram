@@ -379,4 +379,20 @@ lemma step15_8_ext : (n : ℕ) → (X Y : Pi) → (hX : rank X = n) → (hY : ra
   · exact eq_1
   · exact eq_2
 
+lemma step15_8_cont : (n : ℕ) → (X Y X₁ Y₁ : Pi) → (hX : rank X = n) → (hY : rank Y = n) → (X < Y) →
+  (g : Gene) → (X₁.val + (Finsupp.single g 1) = X.val) ∧
+  (Y₁.val + (Finsupp.single g 1) = Y.val) → X₁ < Y₁ := by
+  intro n X Y X₁ Y₁ hX hY hlt g rel
+  have r1 := rel.left
+  have r2 := rel.right
+  have hlt' : X₁.val + (Finsupp.single g 1) < Y₁.val + (Finsupp.single g 1) := by
+    simp [r1, r2, hlt]
+  --have almost : (X₁ : Chromosome) < (Y₁ : Chromosome) := by
+    --exact (add_lt_add_iff_right (Finsupp.single g 1)).1 hlt'
+  --I don't know why this is complaining
+  sorry
+
+  --this is to prove for the case where X and Y are not disjoint in the case of theorem 6
+
+
 end Sigma
