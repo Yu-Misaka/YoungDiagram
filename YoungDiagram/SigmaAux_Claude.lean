@@ -194,7 +194,84 @@ lemma sig_prime_le_fst (Y : Variety.Pi) : (signature (prime Y)).1 ≤ (signature
     intro g _
     exact Nat.cast_nonneg _
   apply mul_le_mul_of_nonneg_left (aux g (hpol g hg)) (this g hg)
-  -- (aux g (hpol g hg)) (Y.val g)
 
+-- same as signature_fst
+lemma signature_snd (X : Variety.Pi) :
+    (Chromosome.signature X).2 = X.val.sum (fun g n ↦ (n : ℚ) • g.signature.2) := by
+  simp only [Chromosome.signature, AddMonoidHom.coe_mk, ZeroHom.coe_mk, Finsupp.sum]
+  exact map_sum (AddMonoidHom.snd ℚ ℚ) _ _
 
--- prove the same lemma but for signature.2
+-- same as signature_prime_fst
+lemma signature_prime_snd (X : Chromosome) :
+    (signature (Chromosome.prime X)).2 =
+    X.sum (fun g m ↦ (m : ℚ) • (primeGene g).signature.2) := by
+  rw [Chromosome.prime]
+  simp only [AddMonoidHom.coe_mk, ZeroHom.coe_mk, smul_eq_mul]
+  have hg : ∀ g : Gene, signature (X g • primeGene g) = (X g : ℚ) • (primeGene g).signature := by
+    intro g
+    rw [map_nsmul]
+    exact (Nat.cast_smul_eq_nsmul (R := ℚ) (X g) _).symm
+  simp only [Finsupp.sum]
+  rw [map_sum signature]
+  simp_rw [hg]
+  exact map_sum (AddMonoidHom.snd ℚ ℚ) _ _
+
+-- same as sig_prime_le_fst
+lemma sig_prime_le_snd (Y : Variety.Pi) : (signature (prime Y)).2 ≤ (signature Y).2 := by
+  have aux : ∀ g : Gene, g.type ≠ .NonPolarized →
+      (primeGene g).signature.2 ≤ g.signature.2 := by
+    intro g hg
+    match hg' : g.type with
+    | .NonPolarized => exact absurd hg' hg
+    | .Positive =>
+      by_cases heven : Even g.rank
+      · have hne : g.rank - 1 ≠ 0 := by
+          obtain ⟨k, hk⟩ := heven; have := g.rank_pos; omega
+        have hodd : ¬ Even (g.rank - 1) := (Nat.even_sub_one g.rank_pos).mp heven
+        simp only [primeGene, hg', Chromosome.signature_ofRank, hne, ↓reduceDIte]
+        rw [Gene.signature_of_positive rfl, if_neg hodd,
+            Gene.signature_of_positive hg', if_pos heven]
+        simp only [Nat.cast_pred g.rank_pos]
+        linarith
+      · have heven' : Even (g.rank - 1) := by
+          by_contra h
+          exact heven ((Nat.even_sub_one g.rank_pos).mpr h)
+        by_cases hne : g.rank - 1 = 0
+        · simp only [primeGene, hne, Gene.ofRank_zero, map_zero]
+          exact (Gene.signature_pos g).le.2
+        · simp only [primeGene, hg', Chromosome.signature_ofRank, hne, ↓reduceDIte]
+          rw [Gene.signature_of_positive rfl, if_pos heven',
+              Gene.signature_of_positive hg', if_neg heven]
+          simp only [Nat.cast_pred g.rank_pos]
+          linarith
+    | .Negative =>
+      by_cases heven : Even g.rank
+      · have hne : g.rank - 1 ≠ 0 := by
+          obtain ⟨k, hk⟩ := heven; have := g.rank_pos; omega
+        have hodd : ¬ Even (g.rank - 1) := (Nat.even_sub_one g.rank_pos).mp heven
+        simp only [primeGene, hg', Chromosome.signature_ofRank, hne, ↓reduceDIte]
+        rw [Gene.signature_of_negative rfl, if_neg hodd,
+            Gene.signature_of_negative hg', if_pos heven]
+        simp only [Nat.cast_pred g.rank_pos]
+        linarith
+      · have heven' : Even (g.rank - 1) := by
+          by_contra h
+          exact heven ((Nat.even_sub_one g.rank_pos).mpr h)
+        by_cases hne : g.rank - 1 = 0
+        · simp only [primeGene, hne, Gene.ofRank_zero, map_zero]
+          exact (Gene.signature_pos g).le.2
+        · simp only [primeGene, hg', Chromosome.signature_ofRank, hne, ↓reduceDIte]
+          rw [Gene.signature_of_negative rfl, if_pos heven',
+              Gene.signature_of_negative hg', if_neg heven]
+          simp only [Nat.cast_pred g.rank_pos]
+          linarith
+  have hpol : ∀ g ∈ (↑Y : Chromosome).support, g.type ≠ .NonPolarized :=
+    IsPolarized_def'.mp (Variety.mem_Pi_iff.mp Y.property)
+  simp only [signature_snd]
+  simp only [signature_prime_snd]
+  apply Finsupp.sum_le_sum
+  intro g hg
+  have : ∀ g ∈ Y.val.support, (0 : ℚ) ≤ (Y.val g) := by
+    intro g _
+    exact Nat.cast_nonneg _
+  apply mul_le_mul_of_nonneg_left (aux g (hpol g hg)) (this g hg)

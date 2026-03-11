@@ -59,11 +59,36 @@ lemma cond_15_2 (X : Variety.Pi) :
     (∀ k, a X (k + 1) ≤ a X k) ∧ (∃ K, ∀ k ≥ K, a X k = 0) :=
   ⟨cond_15_2_antitone X, cond_15_2_eventually_zero X⟩
 
+-- (15.3) b₀ ≥ b₁ ≥ b₂ ≥ …
+-- Each step reduces to sig_prime_le_snd applied to prime^[k] X.
+lemma cond_15_3_antitone (X : Variety.Pi) : ∀ k, b X (k + 1) ≤ b X k := fun k => by
+  simp only [b]
+  simp only [sigma]
+  rw [prime_prime_other k X]
+  exact sig_prime_le_snd ⟨prime^[k] X, prime_k_mem_pi X k⟩
+
+-- (15.3) bₖ = 0 for large k.
+lemma cond_15_3_eventually_zero (X : Variety.Pi) : ∃ K, ∀ k ≥ K, b X k = 0 := by
+  use X.val.maxRank
+  intro k hk
+  simp only [b, sigma]
+  have hbelow : X.val.below X.val.maxRank = X.val := by
+    rw [below_def, ← IsFiltered_def]
+    exact IsFiltered_def'.mpr fun g hg => by
+      simp only [maxRank]; exact Finset.le_sup hg
+  have hprime_zero : prime^[X.val.maxRank] X.val = 0 := by
+    have h : prime^[X.val.maxRank] (X.val.below X.val.maxRank) = 0 := prime_below le_rfl
+    rwa [hbelow] at h
+  have hiter_zero : prime^[k - X.val.maxRank] (0 : Chromosome) = 0 :=
+    Function.iterate_fixed (map_zero prime) _
+  rw [show k = (k - X.val.maxRank) + X.val.maxRank from (Nat.sub_add_cancel hk).symm,
+      Function.iterate_add_apply, hprime_zero, hiter_zero, map_zero]
+  rfl
+
 -- (15.3) b₀ ≥ b₁ ≥ b₂ ≥ …, and bₖ = 0 for large k.
 lemma cond_15_3 (X : Variety.Pi) :
-    (∀ k, b X (k + 1) ≤ b X k) ∧ (∃ K, ∀ k ≥ K, b X k = 0) := by
-  sorry
-  --solve using the same approach as 15.2
+    (∀ k, b X (k + 1) ≤ b X k) ∧ (∃ K, ∀ k ≥ K, b X k = 0) :=
+  ⟨cond_15_3_antitone X, cond_15_3_eventually_zero X⟩
 
 -- (15.4) a₀ ≥ b₁ ≥ a₂ ≥ b₃ ≥ …
 -- At each step k: if k is even then aₖ ≥ b_{k+1}, else bₖ ≥ a_{k+1}.
