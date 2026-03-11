@@ -212,10 +212,10 @@ lemma step15_8_cont : (n : ℕ) → (X Y X₁ Y₁ : Pi) → (hX : rank X = n) �
 lemma disjoint_1 : (k : ℕ) → (X Y : Pi) → (X < Y) →
   Chromosome.prime^[k] X ≤ Chromosome.prime^[k] Y := by
   intro k X Y hlt
-  simp?
-  simp [LT.lt] at hlt
-  simp [Dominates] at hlt
-  simp [prime_a_b]
+  simp only [le_iff_dominates]
+  simp only [LT.lt] at hlt
+  simp only [Dominates] at hlt
+  simp only [prime_a_b]
   intro k'
   exact hlt.1 (k' + k)
 
@@ -231,7 +231,7 @@ lemma disjoint_2_2 : (X Y : Pi) → (X < Y) → (∀ g ∈ Y.val.support, g ∉ 
   ∀ g ∈ X.val.support, g ∉ Y.val.support := by
   intro X Y hlt h
   by_contra
-  simp_all
+  simp_all only [Finsupp.mem_support_iff, ne_eq, Decidable.not_not, not_forall]
   rcases this with ⟨x, hxX, hxY⟩
   have hX0 : X.val x = 0 := h x hxY
   exact hxX hX0

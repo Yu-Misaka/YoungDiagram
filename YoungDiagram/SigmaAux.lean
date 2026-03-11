@@ -28,6 +28,8 @@ lemma prime_prime_other : (k : ℕ) → (X : Chromosome) → prime^[k + 1] X = p
     simp
 
 lemma sig_prime_le_sig_1 : (X : Chromosome) → (signature (prime X)).1 ≤ (signature X).1 := by
+  intro X
+  simp [signature, prime]
   sorry
 
 lemma sig_prime_le_sig_2 : (X : Chromosome) → (signature (prime X)).2 ≤ (signature X).2 := by
