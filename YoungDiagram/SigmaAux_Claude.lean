@@ -81,4 +81,11 @@ lemma prime_prime_other : (k : ℕ) → (X : Pi) →
 -- Key lemma: the first component of the signature can only decrease under prime.
 lemma sig_prime_le_fst (Y : Variety.Pi) : (signature (prime Y)).1 ≤ (signature Y).1 := by
   simp [signature, Chromosome.prime]
+
+  /- Steps
+  i. Prove that
+    (g : Gene) → (h : g.type := Polarised) → (primeGene g).signature.1 ≤ g.signature.1
+  ii. Prove the general statement-/
   sorry
+
+-- prove the same lemma but for signature.2

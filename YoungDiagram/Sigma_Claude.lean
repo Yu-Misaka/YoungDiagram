@@ -63,6 +63,7 @@ lemma cond_15_2 (X : Variety.Pi) :
 lemma cond_15_3 (X : Variety.Pi) :
     (∀ k, b X (k + 1) ≤ b X k) ∧ (∃ K, ∀ k ≥ K, b X k = 0) := by
   sorry
+  --solve using the same approach as 15.2
 
 -- (15.4) a₀ ≥ b₁ ≥ a₂ ≥ b₃ ≥ …
 -- At each step k: if k is even then aₖ ≥ b_{k+1}, else bₖ ≥ a_{k+1}.
