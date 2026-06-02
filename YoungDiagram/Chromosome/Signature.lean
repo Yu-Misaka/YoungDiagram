@@ -253,6 +253,12 @@ lemma signature_ofRank_eq₂' (k : ℕ) {ε : GeneType} :
     signature (Gene.ofRank (k + 2) ε) = signature (Gene.ofRank k ε) + (1, 1) :=
   signature_ofRank_eq₂ (by omega)
 
+lemma signature_ofRank_add_two_add {ε : GeneType} {m n : ℕ} :
+    (Gene.ofRank (m + 2) ε).signature + (Gene.ofRank n ε).signature =
+    (Gene.ofRank m ε).signature + (Gene.ofRank (n + 2) ε).signature := by
+  rw [signature_ofRank_eq₂', signature_ofRank_eq₂']
+  ac_rfl
+
 lemma signature_ofRank_succ_add_nonPolarized {ε : GeneType} {m n : ℕ} (h : Even (m + n)) :
     (Gene.ofRank (m + 1) ε).signature + (Gene.ofRank n .NonPolarized).signature =
     (Gene.ofRank m .NonPolarized).signature + (Gene.ofRank (n + 1) ε).signature := by
@@ -265,6 +271,16 @@ lemma signature_ofRank_succ_add_nonPolarized {ε : GeneType} {m n : ℕ} (h : Ev
     (@signature_ofRank_nonPolarized_succ_add ε (m + 1) (n + 1) even).symm
   rwa [signature_ofRank_eq₂', signature_ofRank_eq₂', ← add_assoc,
     add_assoc _ (1, 1), add_comm (1, 1), ← add_assoc, add_left_inj] at this
+
+lemma signature_ofRank_succ_add_pred_neg {ε : GeneType} {m n : ℕ} (hn : 1 ≤ n)
+    (h : Even (m + n)) :
+    (Gene.ofRank (m + 1) ε).signature + (Gene.ofRank (n - 1) (- ε)).signature =
+    (Gene.ofRank m .NonPolarized).signature + (Gene.ofRank n .NonPolarized).signature := by
+  rw [signature_ofRank_sum_even, signature_ofRank_nonPolarized,
+    signature_ofRank_nonPolarized, Prod.mk_add_mk, ← add_div, Nat.cast_add, Nat.cast_one,
+    Nat.cast_sub hn]
+  · ring_nf
+  · grind only [= Nat.even_iff]
 
 lemma signature_fst {X : Chromosome} :
     X.signature.1 = X.sum (fun g n ↦ (n : ℚ) • g.signature.1) :=
