@@ -9,7 +9,7 @@ lemma cond_15_6_ofRank (k : ℕ) {ε : GeneType} (hε : ε ≠ .NonPolarized) :
   by_cases hk : 1 ≤ k - 1
   · rw [signature_ofRank_eq' hk hε, add_sub_cancel_left]
     replace hk : 2 ≤ k := by omega
-    rw [signature_ofRank_eq₂ hk hε, show k - 1 - 1 = k - 2 by rfl, add_comm,
+    rw [signature_ofRank_eq₂ hk, show k - 1 - 1 = k - 2 by rfl, add_comm,
       add_sub_assoc, sub_add_cancel_left, Prod.swap_add, Prod.swap_prod_mk,
       Prod.swap_neg, le_add_neg_iff_add_le]
     split_ifs

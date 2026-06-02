@@ -63,7 +63,7 @@ lemma mutation_lifting : ∃ (Z : Chromosome) (hZ : Z ∈ Pi),
       · intro i hi
         rw [X_def, Z_def, iterate_map_add, iterate_map_add (x := ζ.1),
           map_add, map_add, add_left_inj, ζ_def]
-        exact mutation_type2_iterate_signature_eq hε hle hm i k hi
+        exact mutation_type2_iterate_signature_eq hle hm i k hi
     | @type3 ε hε m n hle hm =>
       have le1 := Nat.add_le_add_right hle k
       have le2 : 1 ≤ m + k := Nat.le_add_right_of_le hm

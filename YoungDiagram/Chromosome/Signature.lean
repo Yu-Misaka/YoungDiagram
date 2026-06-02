@@ -236,15 +236,35 @@ lemma signature_ofRank_positive₂ {k : ℕ} (hk : 2 ≤ k) :
   rw [signature_ofRank_positive (Nat.one_le_of_lt hk),
     signature_ofRank_eq (Nat.le_sub_one_of_lt hk) (by decide), add_assoc]; simp
 
-lemma signature_ofRank_eq₂ {k : ℕ} {ε : GeneType} (hk : 2 ≤ k) (hε : ε ≠ .NonPolarized) :
+lemma signature_ofRank_eq₂ {k : ℕ} {ε : GeneType} (hk : 2 ≤ k) :
     (Gene.ofRank k ε).signature =
     (Gene.ofRank (k - 2) ε).signature + (1, 1) := by
-  match ε, hε with
-  | .Positive, _ => exact signature_ofRank_positive₂ hk
-  | .Negative, _ =>
+  match ε with
+  | .NonPolarized =>
+    rw [signature_ofRank_nonPolarized, signature_ofRank_nonPolarized, Nat.cast_sub hk,
+      Prod.mk_add_mk, sub_div, Nat.cast_ofNat, div_self (by decide), sub_add_cancel]
+  | .Positive => exact signature_ofRank_positive₂ hk
+  | .Negative =>
     rw [← GeneType.neg_positive, signature_ofRank_swap,
       signature_ofRank_positive₂ hk, Prod.swap_add, ← signature_ofRank_swap]
     rfl
+
+lemma signature_ofRank_eq₂' (k : ℕ) {ε : GeneType} :
+    signature (Gene.ofRank (k + 2) ε) = signature (Gene.ofRank k ε) + (1, 1) :=
+  signature_ofRank_eq₂ (by omega)
+
+lemma signature_ofRank_succ_add_nonPolarized {ε : GeneType} {m n : ℕ} (h : Even (m + n)) :
+    (Gene.ofRank (m + 1) ε).signature + (Gene.ofRank n .NonPolarized).signature =
+    (Gene.ofRank m .NonPolarized).signature + (Gene.ofRank (n + 1) ε).signature := by
+  have eq1 : m + 1 + (n + 1) = (m + n) + 2 := by omega
+  have even : Even (m + 1 + (n + 1)) := by
+    rw [eq1, Nat.even_add]; exact (iff_true_right (Nat.even_iff.2 rfl)).2 h
+  have : (Gene.ofRank (m + 1) ε).signature +
+      (Gene.ofRank (n + 2) .NonPolarized).signature =
+      (Gene.ofRank (m + 2) .NonPolarized).signature + (Gene.ofRank (n + 1) ε).signature :=
+    (@signature_ofRank_nonPolarized_succ_add ε (m + 1) (n + 1) even).symm
+  rwa [signature_ofRank_eq₂', signature_ofRank_eq₂', ← add_assoc,
+    add_assoc _ (1, 1), add_comm (1, 1), ← add_assoc, add_left_inj] at this
 
 lemma signature_fst {X : Chromosome} :
     X.signature.1 = X.sum (fun g n ↦ (n : ℚ) • g.signature.1) :=

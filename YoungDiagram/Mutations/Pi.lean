@@ -76,20 +76,20 @@ lemma mutation_type2_ne (h_le : m ≤ n) (hm : 1 < m) : type2X ≠ type2Y := by
     Finsupp.single_eq_same, Nat.add_eq_zero_iff, OfNat.ofNat_ne_zero, and_self] at h
   split_ifs at h <;> (simp [Finsupp.single_apply] at h; grind)
 
-lemma mutation_type2_iterate_signature_eq (hε : ε ≠ .NonPolarized)
+lemma mutation_type2_iterate_signature_eq
   (h_le : m ≤ n) (hm : 1 < m) (i k : ℕ) (hi : i ≤ k) :
     (prime^[i] (Gene.ofRank (m + k) ε + Gene.ofRank (n + k) ε)).signature =
     (prime^[i] (Gene.ofRank (m + k - 2) ε + Gene.ofRank (n + k + 2) ε)).signature := by
   rw [iterate_map_add, iterate_map_add, prime_iterate_ofRank, prime_iterate_ofRank,
     prime_iterate_ofRank, prime_iterate_ofRank, map_add, map_add,
-    signature_ofRank_eq₂ (k := (m + k - i)) (by omega) hε,
-    signature_ofRank_eq₂ (k := (n + k + 2 - i)) (by omega) hε, Nat.sub_right_comm,
+    signature_ofRank_eq₂ (k := (m + k - i)) (by omega),
+    signature_ofRank_eq₂ (k := (n + k + 2 - i)) (by omega), Nat.sub_right_comm,
     show n + k + 2 - i - 2 = n + k - i by omega]
   ac_rfl
 
-lemma mutation_type2_signature_eq (hε : ε ≠ .NonPolarized) (h_le : m ≤ n) (hm : 1 < m) :
+lemma mutation_type2_signature_eq (h_le : m ≤ n) (hm : 1 < m) :
     signature type2X = signature type2Y := by
-  have := mutation_type2_iterate_signature_eq hε h_le hm 0 0 le_rfl
+  have := mutation_type2_iterate_signature_eq (ε := ε) h_le hm 0 0 le_rfl
   rwa [Function.iterate_zero_apply, Function.iterate_zero_apply, add_zero, add_zero] at this
 
 lemma mutation_type2_le (hε : ε ≠ .NonPolarized) (h_le : m ≤ n) (hm : 1 < m) :
@@ -105,15 +105,15 @@ lemma mutation_type2_le (hε : ε ≠ .NonPolarized) (h_le : m ≤ n) (hm : 1 < 
   by_cases hk2 : m - 2 < k
   · have eq1 : n + 2 - k - 2 = n - k := by omega
     rw [Nat.sub_eq_zero_of_le hk2.le, Gene.ofRank_zero, map_zero, zero_add,
-      signature_ofRank_eq₂ (k := n + 2 - k) (by omega) hε, eq1, add_comm]
+      signature_ofRank_eq₂ (k := n + 2 - k) (by omega), eq1, add_comm]
     gcongr
     have le1 : m - k < 2 := by omega
     match (m - k), le1 with
     | 0, _ => rw [Gene.ofRank_zero, map_zero]; decide
     | 1, _ => match ε, hε with | .Positive, _ => simp | .Negative, _ => simp
   · have eq1 : n + 2 - k - 2 = n - k := by omega
-    rw [signature_ofRank_eq₂ (k := n + 2 - k) (by omega) hε, eq1,
-      signature_ofRank_eq₂ (k := m - k) (by omega) hε, Nat.sub_right_comm]
+    rw [signature_ofRank_eq₂ (k := n + 2 - k) (by omega), eq1,
+      signature_ofRank_eq₂ (k := m - k) (by omega), Nat.sub_right_comm]
     exact le_of_eq <| by ac_rfl
 
 end type2_isMutation
@@ -365,7 +365,7 @@ lemma Primitive.isMutation {X Y : Pi} (h : Primitive X Y) :
       mutation_type1_ne hle hm, mutation_type1_signature_eq hε hle hm⟩
   | type2 ε hε hle hm =>
     exact ⟨mutation_type2_le hε hle hm,
-      mutation_type2_ne hle hm, mutation_type2_signature_eq hε hle hm⟩
+      mutation_type2_ne hle hm, mutation_type2_signature_eq hle hm⟩
   | type3 ε hε hle hm =>
     exact ⟨mutation_type3_le hε hle hm,
       mutation_type3_ne hle hm, mutation_type3_signature_eq hε hle hm⟩
