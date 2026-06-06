@@ -1,5 +1,6 @@
 import Mathlib.Algebra.GroupWithZero.Submonoid.Pointwise
 import YoungDiagram.Chromosome.Lift
+import YoungDiagram.Chromosome.Order
 
 abbrev Variety := AddSubmonoid Chromosome
 
@@ -199,3 +200,124 @@ lemma filter_mem_smul_varietyOfFilter (q : Gene → Prop) [DecidablePred q]
 end IsFiltered
 
 end Chromosome
+
+namespace Variety
+
+open Chromosome
+
+section sigma
+
+variable {v v₁ v₂ : Variety}
+
+/--
+A Variety `v` is rank-one signature injective if any two elements of `v` whose
+rank-1 parts share a signature have equal rank-1 parts.
+-/
+def RankOneSigInj (v : Variety) : Prop :=
+  ∀ {X Y : Chromosome}, X ∈ v → Y ∈ v →
+    signature (X.below 1) = signature (Y.below 1) → X.below 1 = Y.below 1
+
+/--
+A pair `(v₁, v₂)` of varieties is a sigma-pair if `Chromosome.prime` swaps them
+and each side is rank-one signature injective. In a sigma-pair, the sigma
+sequence (the signature of every prime iterate) uniquely determines an element
+on either side; see `SigmaPair.sigmaUnique_left` and `SigmaPair.sigmaUnique_right`.
+-/
+structure SigmaPair (v₁ v₂ : Variety) : Prop where
+  prime_left : v₁.prime ≤ v₂
+  prime_right : v₂.prime ≤ v₁
+  rankOne_left : RankOneSigInj v₁
+  rankOne_right : RankOneSigInj v₂
+
+lemma SigmaPair.symm (h : SigmaPair v₁ v₂) : SigmaPair v₂ v₁ where
+  prime_left := h.prime_right
+  prime_right := h.prime_left
+  rankOne_left := h.rankOne_right
+  rankOne_right := h.rankOne_left
+
+/--
+A Variety is sigma-unique if its elements are determined by their sigma
+sequence (the signature of every prime iterate).
+-/
+def SigmaUnique (v : Variety) : Prop :=
+  ∀ {A B : Chromosome}, A ∈ v → B ∈ v →
+    (∀ k, signature (Chromosome.prime^[k] A) = signature (Chromosome.prime^[k] B)) → A = B
+
+namespace RankOneSigInj
+
+lemma below_one_eq_of_sig_eq (hv : RankOneSigInj v) {A B : Chromosome}
+    (hA : A ∈ v) (hB : B ∈ v) (hsig : A.signature = B.signature)
+    (habove : A.above 1 = B.above 1) : A.below 1 = B.below 1 := by
+  apply hv hA hB
+  rwa [congr_arg signature (rank_decomposition A 1), congr_arg signature
+    (rank_decomposition B 1), map_add, map_add, congr_arg signature habove,
+    add_right_cancel_iff] at hsig
+
+lemma eq_of_prime_eq_sig_eq (hv : RankOneSigInj v) {A B : Chromosome}
+    (hA : A ∈ v) (hB : B ∈ v) (hprime : A.prime = B.prime)
+    (hsig : A.signature = B.signature) : A = B := by
+  have habove := above_one_eq_of_prime_eq hprime
+  rw [rank_decomposition A 1, habove,
+    RankOneSigInj.below_one_eq_of_sig_eq hv hA hB hsig habove, ← rank_decomposition]
+
+end RankOneSigInj
+
+namespace SigmaPair
+
+lemma sigmaUnique_left (h : SigmaPair v₁ v₂) : SigmaUnique v₁ := by
+  intro A B hA hB heq
+  suffices key : ∀ n, ∀ A B : Chromosome,
+      max A.maxRank B.maxRank ≤ n →
+      ((A ∈ v₁ ∧ B ∈ v₁) ∨ (A ∈ v₂ ∧ B ∈ v₂)) →
+      (∀ k, signature (Chromosome.prime^[k] A) = signature (Chromosome.prime^[k] B)) →
+      A = B by
+    exact key _ _ _ le_rfl (Or.inl ⟨hA, hB⟩) heq
+  intro n
+  induction n with
+  | zero =>
+    intro A B hn _ _
+    obtain ⟨hAr, hBr⟩ := max_le_iff.1 hn
+    rw [maxRank_eq_zero (Nat.le_zero.1 hAr), maxRank_eq_zero (Nat.le_zero.1 hBr)]
+  | succ n ih =>
+    intro A B hn hAB hk
+    have hsig0 : signature A = signature B := by
+      simpa only [Function.iterate_zero, id_eq] using hk 0
+    by_cases hA0 : A = 0
+    · rw [hA0, map_zero] at hsig0
+      rw [hA0, signature_eq_zero hsig0.symm]
+    have hB0 : B ≠ 0 := fun hB0 ↦
+      hA0 <| signature_eq_zero <| by rw [hsig0, hB0, map_zero]
+    have hprime_mem :
+        (A.prime ∈ v₁ ∧ B.prime ∈ v₁) ∨ (A.prime ∈ v₂ ∧ B.prime ∈ v₂) := by
+      rcases hAB with ⟨hAv, hBv⟩ | ⟨hAv, hBv⟩
+      · exact Or.inr ⟨h.prime_left ⟨A, hAv, rfl⟩, h.prime_left ⟨B, hBv, rfl⟩⟩
+      · exact Or.inl ⟨h.prime_right ⟨A, hAv, rfl⟩, h.prime_right ⟨B, hBv, rfl⟩⟩
+    have hprime_eq : A.prime = B.prime := by
+      refine ih A.prime B.prime ?_ hprime_mem ?_
+      · have hAlt := maxRank_prime_lt hA0
+        have hBlt := maxRank_prime_lt hB0
+        omega
+      · intro k
+        rw [← Function.iterate_succ_apply, ← Function.iterate_succ_apply]
+        exact hk (k + 1)
+    rcases hAB with ⟨hAv, hBv⟩ | ⟨hAv, hBv⟩
+    · exact RankOneSigInj.eq_of_prime_eq_sig_eq h.rankOne_left hAv hBv hprime_eq hsig0
+    · exact RankOneSigInj.eq_of_prime_eq_sig_eq h.rankOne_right hAv hBv hprime_eq hsig0
+
+lemma sigmaUnique_right (h : SigmaPair v₁ v₂) : SigmaUnique v₂ :=
+  h.symm.sigmaUnique_left
+
+end SigmaPair
+
+/--
+Promote sigma-uniqueness on a Variety to a `PartialOrder` instance on its
+subtype, induced from the dominance order on chromosomes.
+-/
+@[reducible]
+def SigmaUnique.partialOrder (hv : SigmaUnique v) : PartialOrder v where
+  le_antisymm A B hAB hBA := Subtype.val_injective <|
+    hv A.2 B.2 fun k ↦ le_antisymm (hAB k) (hBA k)
+
+end sigma
+
+end Variety
