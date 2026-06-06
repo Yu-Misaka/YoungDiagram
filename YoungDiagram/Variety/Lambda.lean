@@ -41,6 +41,25 @@ lemma IsNonPolarized_iff_iterate_lift {X : Chromosome} {k : ℕ} :
   (lift^[k] X).IsNonPolarized ↔ X.IsNonPolarized :=
     IsFiltered_iff_iterate_lift (fun _ ↦ .rfl)
 
+lemma IsNonPolarized_support_of_below_one {X : Chromosome} (hX : X.IsNonPolarized) :
+    (X.below 1).support ⊆ {⟨1, .NonPolarized, le_rfl⟩} := by
+  intro g hg
+  simp only [Finset.mem_singleton]
+  have htype : g.type = .NonPolarized :=
+    IsNonPolarized_def'.1 (IsNonPolarized_filter hX) g hg
+  simp_rw [← htype, ← support_of_below_one hg]
+
+lemma IsNonPolarized_signature {X : Chromosome} (hX : X.IsNonPolarized) :
+    (X.below 1).signature =
+    ((X ⟨1, .NonPolarized, le_rfl⟩ : ℚ) / 2, (X ⟨1, .NonPolarized, le_rfl⟩ : ℚ) / 2) := by
+  simp only [signature_def, sum]
+  rw [Finset.sum_subset (IsNonPolarized_support_of_below_one hX),
+    Finset.sum_singleton, below_def, filter_apply_pos _ X NeZero.one_le,
+    Gene.signature_of_nonPolarized rfl]
+  · ext <;> simp [Prod.smul_def, smul_eq_mul] <;> ring
+  · intro x _ h2
+    rw [Finsupp.notMem_support_iff.1 h2, Nat.cast_zero, zero_smul]
+
 end nonpolarized
 
 end Chromosome
@@ -83,6 +102,55 @@ lemma prime_mem_Lambda_iterate {X : Chromosome} (hX : X ∈ Lambda) {k : ℕ} :
     Chromosome.prime^[k] X ∈ Lambda :=
   prime_mem_varietyOfFilter_iterate (fun _ ↦ .rfl) hX
 
+lemma smul_Lambda_le_Lambda {n : ℕ} : n • Lambda ≤ Lambda := by
+  intro x hx
+  obtain ⟨y, hy, hyx : n • y = x⟩ := hx
+  rw [mem_Lambda_iff, ← hyx]
+  by_cases hn : n = 0
+  · subst hn; rw [zero_smul]; exact IsNonPolarized_zero
+  · exact (IsNonPolarized_iff_nsmul hn).2 <| mem_Lambda_iff.1 hy
+
 end Lambda
 
 end Variety
+
+section order
+
+open Chromosome
+
+/-- The rank-1 part of an element of `Variety.Lambda` is determined by its signature. -/
+lemma rankOneSigInj_Lambda : Variety.RankOneSigInj Variety.Lambda := by
+  intro X Y hX hY h
+  ext g
+  by_cases hg : ¬ g.rank ≤ 1
+  · rw [below_def, below_def, filter_apply_neg _ X hg, filter_apply_neg _ Y hg]
+  · replace hg : g.rank = 1 := Nat.le_antisymm (by tauto) g.rank_pos
+    rw [below_def, below_def, filter_apply_pos _ X (Nat.le_of_eq hg),
+      filter_apply_pos _ Y (Nat.le_of_eq hg)]
+    rw [IsNonPolarized_signature hX, IsNonPolarized_signature hY] at h
+    by_cases htype : g.type = .NonPolarized
+    · have hxy : (X ⟨1, .NonPolarized, le_rfl⟩ : ℚ) =
+          (Y ⟨1, .NonPolarized, le_rfl⟩ : ℚ) := by
+        have h1 := (Prod.ext_iff.1 h).1
+        linarith
+      have heqg : g = (⟨1, .NonPolarized, le_rfl⟩ : Gene) := Gene.ext hg htype
+      rw [heqg]; exact_mod_cast hxy
+    · rw [Finsupp.notMem_support_iff.1 (fun h ↦ htype <| IsNonPolarized_def'.1 hX g h),
+        Finsupp.notMem_support_iff.1 (fun h ↦ htype <| IsNonPolarized_def'.1 hY g h)]
+
+/-- `(Lambda, Lambda)` is a sigma-pair: `prime` preserves `Lambda` and `Lambda`
+is rank-one signature injective. -/
+lemma sigmaPair_Lambda : Variety.SigmaPair Variety.Lambda Variety.Lambda where
+  prime_left := Variety.prime_Lambda.le
+  prime_right := Variety.prime_Lambda.le
+  rankOne_left := rankOneSigInj_Lambda
+  rankOne_right := rankOneSigInj_Lambda
+
+/-- Elements of `Variety.Lambda` are determined by their sigma sequence. -/
+lemma sigmaUnique_Lambda : Variety.SigmaUnique Variety.Lambda :=
+  sigmaPair_Lambda.sigmaUnique_left
+
+end order
+
+instance : PartialOrder Variety.Lambda :=
+  Variety.SigmaUnique.partialOrder sigmaUnique_Lambda

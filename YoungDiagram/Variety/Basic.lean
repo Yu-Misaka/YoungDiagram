@@ -245,6 +245,10 @@ def SigmaUnique (v : Variety) : Prop :=
 
 namespace RankOneSigInj
 
+lemma mono {v₁ v₂ : Variety} (h : v₁ ≤ v₂) (hv : RankOneSigInj v₂) :
+    RankOneSigInj v₁ :=
+  fun hX hY heq ↦ hv (h hX) (h hY) heq
+
 lemma below_one_eq_of_sig_eq (hv : RankOneSigInj v) {A B : Chromosome}
     (hA : A ∈ v) (hB : B ∈ v) (hsig : A.signature = B.signature)
     (habove : A.above 1 = B.above 1) : A.below 1 = B.below 1 := by
