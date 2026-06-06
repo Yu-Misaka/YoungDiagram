@@ -298,7 +298,7 @@
 
 \begin{lemma}[Sigma sequence determines element of Pi]
   \label{lem:eq_of_sigma_eq}
-  \lean{eq_of_sigma_eq}
+  \lean{sigmaUnique_Pi}
   \leanok
   \uses{def:Variety.Pi, def:Chromosome.signature, def:Chromosome.prime}
   If $X, Y \in \mathrm{Pi}$ satisfy $\mathrm{sig}(X^{(k)}) = \mathrm{sig}(Y^{(k)})$ for all $k \ge 0$,
@@ -307,7 +307,7 @@
 
 \begin{lemma}[Antisymmetry of dominance on Pi]
   \label{lem:pi_chromosome_antisymm}
-  \lean{pi_chromosome_antisymm}
+  \lean{Variety.SigmaUnique.partialOrder, sigmaUnique_Pi}
   \leanok
   \uses{def:Variety.Pi, def:Chromosome.Dominates}
   For $X, Y \in \mathrm{Pi}$, if $X \le Y$ and $Y \le X$, then $X = Y$.
@@ -583,7 +583,7 @@
 
 \begin{lemma}[Steps are mutations]
   \label{lem:Pi.Step.isMutation}
-  \lean{Pi.Step.isMutation, Pi.Step.add_right_pi}
+  \lean{Pi.Step.isMutation, Pi.Step.add_right}
   \leanok
   \uses{def:Pi.Step, lem:Pi.Primitive.isMutation}
   A step remains a mutation after adding the same polarized summand to both
