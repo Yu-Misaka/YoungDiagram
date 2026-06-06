@@ -19,6 +19,8 @@ include h_le
 
 section Aux
 
+namespace MixLambdaPi
+
 section type7_isMutation
 
 omit h_le in
@@ -75,6 +77,8 @@ lemma mutation_type7_le : type7X ≤ type7Y := by
       simp [eq1, eq2, eq3, eq4, Gene.ofRank_zero]
 
 end type7_isMutation
+
+end MixLambdaPi
 
 end Aux
 

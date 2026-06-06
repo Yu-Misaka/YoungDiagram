@@ -19,6 +19,8 @@ include h_le
 
 section Aux
 
+namespace MixLambdaPi
+
 section type4_isMutation
 
 omit h_le in
@@ -88,6 +90,8 @@ lemma mutation_type4_le : type4X ≤ type4Y := by
         Nat.cast_zero, zero_div]; rfl
 
 end type4_isMutation
+
+end MixLambdaPi
 
 end Aux
 

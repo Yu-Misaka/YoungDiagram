@@ -19,6 +19,8 @@ include h_le
 
 section Aux
 
+namespace MixLambdaPi
+
 section type5_isMutation
 
 lemma mutation_type5_ne : type5X ≠ type5Y := by
@@ -73,6 +75,8 @@ lemma mutation_type5_le : type5X ≤ type5Y := by
       rw [eq1, eq2, eq3, eq4, Gene.ofRank_zero, Gene.ofRank_zero, map_zero]
 
 end type5_isMutation
+
+end MixLambdaPi
 
 end Aux
 

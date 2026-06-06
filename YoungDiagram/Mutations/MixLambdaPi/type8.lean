@@ -19,6 +19,8 @@ include h_le
 
 section Aux
 
+namespace MixLambdaPi
+
 section type8_isMutation
 
 lemma mutation_type8_ne : type8X ≠ type8Y := by
@@ -76,6 +78,8 @@ lemma mutation_type8_le : type8X ≤ type8Y := by
     rw [eq1, eq2, signature_ofRank_add_two_add]
 
 end type8_isMutation
+
+end MixLambdaPi
 
 end Aux
 

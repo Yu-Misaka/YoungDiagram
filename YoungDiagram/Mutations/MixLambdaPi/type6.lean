@@ -19,6 +19,8 @@ include h_le
 
 section Aux
 
+namespace MixLambdaPi
+
 section type6_isMutation
 
 lemma mutation_type6_ne : type6X ≠ type6Y := by
@@ -72,6 +74,8 @@ lemma mutation_type6_le : type6X ≤ type6Y := by
       rw [eq1, eq2, eq3, eq4, Gene.ofRank_zero, Gene.ofRank_zero, map_zero]
 
 end type6_isMutation
+
+end MixLambdaPi
 
 end Aux
 
