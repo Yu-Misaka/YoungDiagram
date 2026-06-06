@@ -1,4 +1,4 @@
-import YoungDiagram
+import YoungDiagram.Variety
 
 open Chromosome
 
