@@ -218,18 +218,9 @@ lemma eq_of_prime_eq_sig_eq (hprime : A.prime = B.prime)
     (hsig : A.signature = B.signature) : A = B :=
   Variety.RankOneSigInj.eq_of_prime_eq_sig_eq rankOneSigInj_Pi hA hB hprime hsig
 
-/-- The sigma sequence uniquely determines a polarized chromosome. -/
-lemma eq_of_sigma_eq (h : ∀ k, signature (prime^[k] A) = signature (prime^[k] B)) :
-    A = B :=
-  sigmaUnique_Pi hA hB h
-
-lemma pi_chromosome_antisymm
-    (hAB : A ≤ B) (hBA : B ≤ A) : A = B :=
-  eq_of_sigma_eq hA hB fun k ↦ le_antisymm (hAB k) (hBA k)
+instance : PartialOrder Variety.Pi := Variety.SigmaUnique.partialOrder sigmaUnique_Pi
 
 end order
-
-instance : PartialOrder Variety.Pi := Variety.SigmaUnique.partialOrder sigmaUnique_Pi
 
 section rank_one
 
@@ -262,10 +253,11 @@ namespace Pi
 
 open Variety
 
-instance : Neg Pi where
-  neg X := ⟨- X, IsPolarized_iff_neg_polarized.1 X.2⟩
+lemma neg_mem_iff {X : Chromosome} : X ∈ Pi ↔ - X ∈ Pi :=
+  IsPolarized_iff_neg_polarized
 
 instance : InvolutiveNeg Pi where
+  neg X := ⟨- X, neg_mem_iff.1 X.2⟩
   neg_neg X := Subtype.val_injective (neg_neg X.1)
 
 lemma neg_val {X : Pi} : (- X).1 = - X.1 := rfl

@@ -71,6 +71,10 @@ lemma GeneType.smul_neg {n : ℤ} {ε : GeneType} :
 lemma GeneType.neg_ne_nonPolarized_iff {ε : GeneType} :
     ε ≠ .NonPolarized ↔ - ε ≠ .NonPolarized := by cases ε <;> decide
 
+lemma GeneType.neg_eq_nonPolarized_iff {ε : GeneType} :
+    ε = .NonPolarized ↔ - ε = .NonPolarized :=
+  Decidable.not_iff_not.1 GeneType.neg_ne_nonPolarized_iff
+
 lemma GeneType.smul_ne_nonPolarized_iff {n : ℤ} {ε : GeneType} :
     ε ≠ .NonPolarized ↔ n.negOnePow • ε ≠ .NonPolarized := by
   rw [negOnePow_smul]

@@ -173,7 +173,7 @@ lemma exists_mutation_le_disjoint_sigma_eq (m : ℕ)
     change Yk.val.Dominates Xk.val ∧ ¬Xk.val.Dominates Yk.val
     refine ⟨le_iff_dominates.mp hle_k, fun hcontra => ?_⟩
     have hXkYk_eq : Xk.val = Yk.val :=
-      pi_chromosome_antisymm Xk.2 Yk.2 hle_k (le_iff_dominates.mpr hcontra)
+      Subtype.val_inj.2 (le_antisymm hle_k hcontra)
     obtain ⟨g', hg'⟩ : ∃ g', 0 < Yk.val g' := by
       obtain ⟨g', hg'mem⟩ := Finsupp.support_nonempty_iff.mpr hYkne
       exact ⟨g', Nat.pos_of_ne_zero (Finsupp.mem_support_iff.mp hg'mem)⟩

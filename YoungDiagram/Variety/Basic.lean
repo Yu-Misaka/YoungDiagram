@@ -12,6 +12,28 @@ lemma Variety.prime_def (v : Variety) :
 
 open Finsupp Pointwise
 
+lemma Variety.variety_prime_smul {v : Variety} {n : ℕ} :
+    (n • v).prime = n • v.prime := by
+  ext x; constructor <;> intro hx
+  · obtain ⟨y, ⟨⟨z, ⟨hz, hyz : n • z = y⟩⟩, heq⟩⟩ := hx
+    refine ⟨z.prime, ⟨?_, (?_ : n • z.prime = x)⟩⟩
+    · use z
+    · rw [← map_nsmul, hyz, heq]
+  · obtain ⟨y, ⟨⟨z, ⟨hz, hyz⟩⟩, heq : n • y = x⟩⟩ := hx
+    refine ⟨n • z, ⟨?_, ?_⟩⟩
+    · use z, hz; rfl
+    · rw [map_nsmul, hyz, heq]
+
+lemma Variety.neg_mem_smul_iff {v : Variety} {n : ℕ} {X : Chromosome}
+    (hv : ∀ {Y}, Y ∈ v ↔ -Y ∈ v) : X ∈ n • v ↔ - X ∈ n • v := by
+  rw [AddSubmonoid.mem_smul_pointwise_iff_exists,
+    AddSubmonoid.mem_smul_pointwise_iff_exists]
+  constructor <;> rintro ⟨Y, ⟨hY, hXY⟩⟩
+  · refine ⟨- Y, ⟨hv.1 hY, ?_⟩⟩
+    rw [← Chromosome.neg_smul, hXY]
+  · refine ⟨- Y, ⟨hv.1 hY, ?_⟩⟩
+    rw [← Chromosome.neg_smul, hXY, neg_neg]
+
 namespace Chromosome
 
 lemma signature_filter_le (X : Chromosome) (p : Gene → Prop) [DecidablePred p] :

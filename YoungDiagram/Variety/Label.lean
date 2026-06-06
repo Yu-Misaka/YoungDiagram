@@ -4,18 +4,6 @@ open Pointwise
 
 namespace Variety
 
-lemma variety_prime_smul {v : Variety} {n : ℕ} :
-    (n • v).prime = n • v.prime := by
-  ext x; constructor <;> intro hx
-  · obtain ⟨y, ⟨⟨z, ⟨hz, hyz : n • z = y⟩⟩, heq⟩⟩ := hx
-    refine ⟨z.prime, ⟨?_, (?_ : n • z.prime = x)⟩⟩
-    · use z
-    · rw [← map_nsmul, hyz, heq]
-  · obtain ⟨y, ⟨⟨z, ⟨hz, hyz⟩⟩, heq : n • y = x⟩⟩ := hx
-    refine ⟨n • z, ⟨?_, ?_⟩⟩
-    · use z, hz; rfl
-    · rw [map_nsmul, hyz, heq]
-
 noncomputable def Label : Fin 5 → Variety
   | 0 => Pi
   | 1 => Mix (Lambda, Pi)
@@ -25,22 +13,6 @@ noncomputable def Label : Fin 5 → Variety
 
 def Label.prime : Fin 5 → Fin 5
   | 0 => 0 | 1 => 2 | 2 => 1 | 3 => 4 | 4 => 3
-
-lemma prime_Mix_Pi_Lambda : (Mix (Pi, Lambda)).prime = Mix (Lambda, Pi) := by
-  rw [prime_Mix_eq parityDecomp_mem_Pi parityDecomp_mem_Lambda, prime_Pi, prime_Lambda]
-
-lemma prime_Mix_Lambda_Pi : (Mix (Lambda, Pi)).prime = Mix (Pi, Lambda) := by
-  rw [prime_Mix_eq parityDecomp_mem_Lambda parityDecomp_mem_Pi, prime_Pi, prime_Lambda]
-
-lemma prime_Mix_2Lambda_Pi :
-    (Mix (2 • Lambda, Pi)).prime = Mix (Pi, 2 • Lambda) := by
-  rw [prime_Mix_eq parityDecomp_mem_smul_Lambda parityDecomp_mem_Pi,
-    prime_Pi, variety_prime_smul, prime_Lambda]
-
-lemma prime_Mix_Pi_2Lambda :
-    (Mix (Pi, 2 • Lambda)).prime = Mix (2 • Lambda, Pi) := by
-  rw [prime_Mix_eq parityDecomp_mem_Pi parityDecomp_mem_smul_Lambda,
-    prime_Pi, variety_prime_smul, prime_Lambda]
 
 lemma Label.prime_eq {i : Fin 5} :
     Variety.prime (Label i) = Label (Label.prime i) :=
@@ -77,39 +49,4 @@ noncomputable def Label.of_mem_prime_iterate {i : Fin 5} {k : ℕ} {X : Chromoso
 lemma Label.prime_iterate_zero {k : ℕ} : Label.prime^[k] 0 = 0 :=
   Function.iterate_fixed rfl k
 
-section MixOrder
-
-/-- The dominance order makes `Mix (Pi, Lambda)` and `Mix (Lambda, Pi)` a
-sigma-pair: `prime` swaps them and each is rank-one signature injective. -/
-lemma sigmaPair_Mix_Pi_Lambda :
-    SigmaPair (Mix (Pi, Lambda)) (Mix (Lambda, Pi)) where
-  prime_left := prime_Mix_Pi_Lambda.le
-  prime_right := prime_Mix_Lambda_Pi.le
-  rankOne_left := rankOneSigInj_Mix_of_snd rankOneSigInj_Lambda
-  rankOne_right := rankOneSigInj_Mix_of_snd rankOneSigInj_Pi
-
-/-- The dominance order makes `Mix (2 • Lambda, Pi)` and `Mix (Pi, 2 • Lambda)`
-a sigma-pair. -/
-lemma sigmaPair_Mix_2Lambda_Pi :
-    SigmaPair (Mix (2 • Lambda, Pi)) (Mix (Pi, 2 • Lambda)) where
-  prime_left := prime_Mix_2Lambda_Pi.le
-  prime_right := prime_Mix_Pi_2Lambda.le
-  rankOne_left := rankOneSigInj_Mix_of_snd rankOneSigInj_Pi
-  rankOne_right := rankOneSigInj_Mix_of_snd
-    (RankOneSigInj.mono smul_Lambda_le_Lambda rankOneSigInj_Lambda)
-
-end MixOrder
-
 end Variety
-
-instance : PartialOrder (Variety.Mix (.Pi, .Lambda)) :=
-  Variety.SigmaUnique.partialOrder Variety.sigmaPair_Mix_Pi_Lambda.sigmaUnique_left
-
-instance : PartialOrder (Variety.Mix (.Lambda, .Pi)) :=
-  Variety.SigmaUnique.partialOrder Variety.sigmaPair_Mix_Pi_Lambda.sigmaUnique_right
-
-noncomputable instance : PartialOrder (Variety.Mix (2 • .Lambda, .Pi)) :=
-  Variety.SigmaUnique.partialOrder Variety.sigmaPair_Mix_2Lambda_Pi.sigmaUnique_left
-
-noncomputable instance : PartialOrder (Variety.Mix (.Pi, 2 • .Lambda)) :=
-  Variety.SigmaUnique.partialOrder Variety.sigmaPair_Mix_2Lambda_Pi.sigmaUnique_right

@@ -1,7 +1,7 @@
 import YoungDiagram.Variety.Basic
 import YoungDiagram.Chromosome.Parity
 
-open Finsupp
+open Finsupp Chromosome Pointwise
 
 namespace Chromosome
 
@@ -33,6 +33,15 @@ lemma IsNonPolarized_iff_add {X Y : Chromosome} :
 
 lemma IsNonPolarized_iff_nsmul {X : Chromosome} {n : ℕ} (hn : n ≠ 0) :
   (n • X).IsNonPolarized ↔ X.IsNonPolarized := IsFiltered_iff_nsmul hn
+
+lemma IsNonPolarized_iff_neg_polarized {X : Chromosome} :
+    X.IsNonPolarized ↔ (- X).IsNonPolarized := by
+  rw [IsNonPolarized_def', IsNonPolarized_def']
+  constructor <;> (intro h g hg; specialize h (- g))
+  · rw [GeneType.neg_eq_nonPolarized_iff, ← Gene.neg_type]
+    exact h (neg_neg X ▸ (mem_neg_support.1 hg))
+  · rw [GeneType.neg_eq_nonPolarized_iff, ← Gene.neg_type]
+    exact h (mem_neg_support.1 hg)
 
 lemma IsNonPolarized_iff_lift {X : Chromosome} :
   X.lift.IsNonPolarized ↔ X.IsNonPolarized := IsFiltered_iff_lift (fun _ ↦ .rfl)
@@ -148,7 +157,35 @@ lemma sigmaPair_Lambda : Variety.SigmaPair Variety.Lambda Variety.Lambda where
 lemma sigmaUnique_Lambda : Variety.SigmaUnique Variety.Lambda :=
   sigmaPair_Lambda.sigmaUnique_left
 
-end order
-
 instance : PartialOrder Variety.Lambda :=
   Variety.SigmaUnique.partialOrder sigmaUnique_Lambda
+
+end order
+
+noncomputable section neg
+
+namespace Lambda
+
+open Variety
+
+lemma neg_mem_iff {X : Chromosome} : X ∈ Lambda ↔ - X ∈ Lambda :=
+  IsNonPolarized_iff_neg_polarized
+
+instance : InvolutiveNeg Lambda where
+  neg X := ⟨- X, neg_mem_iff.1 X.2⟩
+  neg_neg X := Subtype.val_injective (neg_neg X.1)
+
+lemma neg_val {X : Lambda} : (- X).1 = - X.1 := rfl
+
+@[simp] lemma neg_add {X Y : Lambda} : - (X + Y) = - X + - Y :=
+  Subtype.val_injective Chromosome.neg_add
+
+lemma neg_le_neg_iff {X Y : Lambda} : - X ≤ - Y ↔ X ≤ Y :=
+  Chromosome.neg_le_neg_iff
+
+lemma neg_lt_neg_iff {X Y : Lambda} : - X < - Y ↔ X < Y :=
+  Chromosome.neg_lt_neg_iff
+
+end Lambda
+
+end neg

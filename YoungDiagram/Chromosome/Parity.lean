@@ -4,6 +4,11 @@ open Finsupp
 
 namespace Chromosome
 
+lemma neg_filtered {X : Chromosome} {P : ℕ → Prop} [DecidablePred P] :
+    (- X).filter (P ·.rank) = - (X.filter (P ·.rank)) := by
+  ext g
+  rw [filter_apply, neg_apply, neg_apply, filter_apply, Gene.neg_rank]
+
 section parity
 
 def oddPart : Chromosome →+ Chromosome where
@@ -15,6 +20,10 @@ def evenPart : Chromosome →+ Chromosome where
   toFun c := c.filter (Even ·.rank)
   map_zero' := filter_zero _
   map_add' _ _ := filter_add
+
+lemma oddPart_eq {X : Chromosome} : X.oddPart = X.filter (Odd ·.rank) := rfl
+
+lemma evenPart_eq {X : Chromosome} : X.evenPart = X.filter (Even ·.rank) := rfl
 
 lemma evenPart_idempotent {X : Chromosome} : evenPart (evenPart X) = evenPart X := by
   refine (filter_eq_self_iff (Even ·.rank) (filter (Even ·.rank) X)).2 ?_
@@ -88,6 +97,12 @@ lemma evenPart_oddPart {X : Chromosome} : evenPart (oddPart X) = 0 := by
   rw [Nat.odd_iff] at ho
   rw [Nat.even_iff, ho] at he
   tauto
+
+lemma neg_oddPart {X : Chromosome} : (- X).oddPart = - X.oddPart :=
+  neg_filtered
+
+lemma neg_evenPart {X : Chromosome} : (- X).evenPart = - X.evenPart :=
+  neg_filtered
 
 end parity
 

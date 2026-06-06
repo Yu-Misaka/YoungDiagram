@@ -34,7 +34,7 @@ private lemma exists_mutation_le_fifteen_ten {m : ℕ}
         | succ k => simp only [Function.iterate_succ_apply, hXprime_zero,
             iterate_map_zero, map_zero, hYprime]
       exact (ne_of_lt hXY) <| Subtype.val_injective
-        <| Subtype.val_injective <| eq_of_sigma_eq X.1.2 Y.1.2 hsig_all
+        <| Subtype.val_injective <| sigmaUnique_Pi X.1.2 Y.1.2 hsig_all
     have hsig_ne : sigma X 1 ≠ sigma Y 1 := fun hsig ↦ hsigeq ⟨1, Nat.one_pos, hYprime_ne, hsig⟩
     have hb_ne : (sigma X 1).2 ≠ (sigma Y 1).2 := fun hb_eq ↦ hsig_ne (Prod.ext ha_eq hb_eq)
     have hb_lt : (sigma X 1).2 < (sigma Y 1).2 :=
