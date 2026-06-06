@@ -174,74 +174,62 @@ end signature
 
 section order
 
+/-- The rank-1 part of an element of `Variety.Pi` is determined by its signature. -/
+lemma rankOneSigInj_Pi : Variety.RankOneSigInj Variety.Pi := by
+  intro X Y hX hY h
+  ext g
+  by_cases hg : ¬ g.rank ≤ 1
+  · rw [below_def, below_def, filter_apply_neg _ X hg, filter_apply_neg _ Y hg]
+  · replace hg : g.rank = 1 := Nat.le_antisymm (by tauto) g.rank_pos
+    rw [below_def, below_def, filter_apply_pos _ X (Nat.le_of_eq hg),
+      filter_apply_pos _ Y (Nat.le_of_eq hg)]
+    rw [IsPolarized_signature hX, IsPolarized_signature hY] at h
+    cases htype : g.type
+    · rw [Finsupp.notMem_support_iff.1 (fun h ↦ IsPolarized_def'.1 hX g h htype),
+        Finsupp.notMem_support_iff.1 (fun h ↦ IsPolarized_def'.1 hY g h htype)]
+    · simpa [← hg, ← htype] using (Prod.ext_iff.1 h).1
+    · simpa [← hg, ← htype] using (Prod.ext_iff.1 h).2
+
+/-- `(Pi, Pi)` is a sigma-pair: `prime` preserves `Pi` and `Pi` is rank-one
+signature injective. -/
+lemma sigmaPair_Pi : Variety.SigmaPair Variety.Pi Variety.Pi where
+  prime_left := Variety.prime_Pi.le
+  prime_right := Variety.prime_Pi.le
+  rankOne_left := rankOneSigInj_Pi
+  rankOne_right := rankOneSigInj_Pi
+
+/-- Elements of `Variety.Pi` are determined by their sigma sequence. -/
+lemma sigmaUnique_Pi : Variety.SigmaUnique Variety.Pi :=
+  sigmaPair_Pi.sigmaUnique_left
+
 variable {A B : Chromosome} (hA : A ∈ Variety.Pi) (hB : B ∈ Variety.Pi)
 
 include hA hB
 
 lemma below_one_eq_of_signature_eq (h : signature (A.below 1) = signature (B.below 1)) :
-    A.below 1 = B.below 1 := by
-  ext g
-  by_cases hg : ¬ g.rank ≤ 1
-  · rw [below_def, below_def, filter_apply_neg _ A hg, filter_apply_neg _ B hg]
-  · replace hg : g.rank = 1 := Nat.le_antisymm (by tauto) g.rank_pos
-    rw [below_def, below_def, filter_apply_pos _ A (Nat.le_of_eq hg),
-      filter_apply_pos _ B (Nat.le_of_eq hg)]
-    rw [IsPolarized_signature hA, IsPolarized_signature hB] at h
-    cases htype : g.type
-    · rw [Finsupp.notMem_support_iff.1 (fun h ↦ IsPolarized_def'.1 hA g h htype),
-        Finsupp.notMem_support_iff.1 (fun h ↦ IsPolarized_def'.1 hB g h htype)]
-    · simpa [← hg, ← htype] using (Prod.ext_iff.1 h).1
-    · simpa [← hg, ← htype] using (Prod.ext_iff.1 h).2
+    A.below 1 = B.below 1 :=
+  rankOneSigInj_Pi hA hB h
 
 lemma below_one_eq_of_sig_eq (hsig : A.signature = B.signature)
-    (habove : A.above 1 = B.above 1) : A.below 1 = B.below 1 := by
-  apply below_one_eq_of_signature_eq hA hB
-  rwa [congr_arg signature (rank_decomposition A 1), congr_arg signature
-    (rank_decomposition B 1), map_add, map_add, congr_arg signature habove,
-    add_right_cancel_iff] at hsig
+    (habove : A.above 1 = B.above 1) : A.below 1 = B.below 1 :=
+  Variety.RankOneSigInj.below_one_eq_of_sig_eq rankOneSigInj_Pi hA hB hsig habove
 
 lemma eq_of_prime_eq_sig_eq (hprime : A.prime = B.prime)
-    (hsig : A.signature = B.signature) : A = B := by
-  have habove := above_one_eq_of_prime_eq hprime
-  rw [rank_decomposition A 1, habove, below_one_eq_of_sig_eq hA hB hsig habove,
-    ← rank_decomposition]
+    (hsig : A.signature = B.signature) : A = B :=
+  Variety.RankOneSigInj.eq_of_prime_eq_sig_eq rankOneSigInj_Pi hA hB hprime hsig
 
 /-- The sigma sequence uniquely determines a polarized chromosome. -/
 lemma eq_of_sigma_eq (h : ∀ k, signature (prime^[k] A) = signature (prime^[k] B)) :
-    A = B := by
-  suffices ∀ n (A B), A ∈ Variety.Pi → B ∈ Variety.Pi →
-      max A.maxRank B.maxRank ≤ n →
-      (∀ k, signature (prime^[k] A) = signature (prime^[k] B)) → A = B from
-    this _ _ _ hA hB le_rfl h
-  intro n; induction n with
-  | zero =>
-    intro _ _ _ _ hn _
-    have ⟨hA, hB⟩ := max_le_iff.1 hn
-    rw [maxRank_eq_zero (Nat.le_zero.1 hA), maxRank_eq_zero (Nat.le_zero.1 hB)]
-  | succ n ih =>
-    intro A B hA hB hn h
-    have hsig : signature A = signature B := by
-      simpa only [Function.iterate_zero, id_eq] using h 0
-    by_cases hA0 : A = 0
-    · rw [hA0, map_zero] at hsig
-      rw [hA0, signature_eq_zero hsig.symm]
-    · have hB0 : B ≠ 0 := fun h ↦ hA0 <| signature_eq_zero <| by rw [hsig, h, map_zero]
-      refine eq_of_prime_eq_sig_eq hA hB ?_ hsig
-      · refine ih A.prime B.prime (Variety.prime_mem_Pi hA)
-          (Variety.prime_mem_Pi hB) ?_ ?_
-        · have := maxRank_prime_lt hA0; have := maxRank_prime_lt hB0; omega
-        · intro k; rw [← Function.iterate_succ_apply, ← Function.iterate_succ_apply]
-          exact h (k + 1)
+    A = B :=
+  sigmaUnique_Pi hA hB h
 
 lemma pi_chromosome_antisymm
     (hAB : A ≤ B) (hBA : B ≤ A) : A = B :=
   eq_of_sigma_eq hA hB fun k ↦ le_antisymm (hAB k) (hBA k)
 
-instance : PartialOrder Variety.Pi where
-  le_antisymm A B hAB hBA := Subtype.val_injective
-    (pi_chromosome_antisymm A.2 B.2 hAB hBA)
-
 end order
+
+instance : PartialOrder Variety.Pi := Variety.SigmaUnique.partialOrder sigmaUnique_Pi
 
 section rank_one
 
