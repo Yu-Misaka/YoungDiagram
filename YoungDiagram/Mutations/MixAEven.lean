@@ -324,17 +324,17 @@ lemma mutation_type8_le : type8X ≤ type8Y := by
     exact signature_nonneg _
   by_cases hk2 : 2 * m + 1 < k
   · have eq1 : 2 * n + 5 - k - 2 = 2 * n + 3 - k := by omega
+    have le1 : 2 * m + 3 - k < 2 := by omega
     rw [Nat.sub_eq_zero_of_le hk2.le, Gene.ofRank_zero, map_zero, zero_add,
       signature_ofRank_eq₂ (k := 2 * n + 5 - k) (by omega), eq1, add_comm]
     gcongr
-    have le1 : 2 * m + 3 - k < 2 := by omega
     match 2 * m + 3 - k, le1 with
     | 0, _ => rw [Gene.ofRank_zero, map_zero]; decide
     | 1, _ =>
       cases ε
-      · simp [Gene.ofRank_def, Gene.signature]; norm_num
-      · simp [Gene.ofRank_def, Gene.signature]
-      · simp [Gene.ofRank_def, Gene.signature]
+      · rw [signature_ofRank_nonPolarized]; decide +kernel
+      · rw [signature_ofRank_one_positive]; decide
+      · rw [signature_ofRank_one_negative]; decide
   · have eq1 : 2 * m + 3 - k = 2 * m + 1 - k + 2 := by omega
     have eq2 : 2 * n + 5 - k = 2 * n + 3 - k + 2 := by omega
     rw [eq1, eq2, signature_ofRank_add_two_add]
@@ -342,3 +342,21 @@ lemma mutation_type8_le : type8X ≤ type8Y := by
 end type8_isMutation
 
 end Aux
+
+open Variety
+
+namespace MixAEven
+
+variable (hε : ε ≠ .NonPolarized)
+
+noncomputable section type4
+
+variable (hle : m ≤ n)
+
+def X4 : Mix (Lambda, Pi) := by
+  use type4X
+  sorry
+
+end type4
+
+end MixAEven
