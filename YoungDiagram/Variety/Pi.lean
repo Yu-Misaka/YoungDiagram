@@ -175,7 +175,7 @@ end signature
 section order
 
 /-- The rank-1 part of an element of `Variety.Pi` is determined by its signature. -/
-lemma rankOneSigInj_Pi : Variety.RankOneSigInj Variety.Pi := by
+lemma rankOneSigInj_Pi : Variety.RankOneSigInj .Pi := by
   intro X Y hX hY h
   ext g
   by_cases hg : ¬ g.rank ≤ 1
@@ -199,7 +199,7 @@ lemma sigmaPair_Pi : Variety.SigmaPair Variety.Pi Variety.Pi where
   rankOne_right := rankOneSigInj_Pi
 
 /-- Elements of `Variety.Pi` are determined by their sigma sequence. -/
-lemma sigmaUnique_Pi : Variety.SigmaUnique Variety.Pi :=
+lemma sigmaUnique_Pi : Variety.SigmaUnique .Pi :=
   sigmaPair_Pi.sigmaUnique_left
 
 variable {A B : Chromosome} (hA : A ∈ Variety.Pi) (hB : B ∈ Variety.Pi)
@@ -249,8 +249,8 @@ lemma Pi_rank_one_eq_of_sig_eq {X Y : Chromosome}
     (hX : X ∈ Variety.Pi) (hY : Y ∈ Variety.Pi)
     (hrX : X.rank = 1) (hrY : Y.rank = 1)
     (hsig : X.signature = Y.signature) : X = Y := by
-  obtain ⟨εX, hεX, hXε⟩ := rank_eq_one_pi_single hX hrX
-  obtain ⟨εY, hεY, hYε⟩ := rank_eq_one_pi_single hY hrY
+  obtain ⟨_, -, hXε⟩ := rank_eq_one_pi_single hX hrX
+  obtain ⟨_, -, hYε⟩ := rank_eq_one_pi_single hY hrY
   refine eq_of_prime_eq_sig_eq hX hY ?_ hsig
   simp only [hXε, hYε, prime_ofRank, tsub_self, Gene.ofRank_zero]
 

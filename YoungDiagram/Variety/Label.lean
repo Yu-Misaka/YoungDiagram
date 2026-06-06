@@ -26,26 +26,30 @@ noncomputable def Label : Fin 5 → Variety
 def Label.prime : Fin 5 → Fin 5
   | 0 => 0 | 1 => 2 | 2 => 1 | 3 => 4 | 4 => 3
 
+lemma prime_Mix_Pi_Lambda : (Mix (Pi, Lambda)).prime = Mix (Lambda, Pi) := by
+  rw [prime_Mix_eq parityDecomp_mem_Pi parityDecomp_mem_Lambda, prime_Pi, prime_Lambda]
+
+lemma prime_Mix_Lambda_Pi : (Mix (Lambda, Pi)).prime = Mix (Pi, Lambda) := by
+  rw [prime_Mix_eq parityDecomp_mem_Lambda parityDecomp_mem_Pi, prime_Pi, prime_Lambda]
+
+lemma prime_Mix_2Lambda_Pi :
+    (Mix (2 • Lambda, Pi)).prime = Mix (Pi, 2 • Lambda) := by
+  rw [prime_Mix_eq parityDecomp_mem_smul_Lambda parityDecomp_mem_Pi,
+    prime_Pi, variety_prime_smul, prime_Lambda]
+
+lemma prime_Mix_Pi_2Lambda :
+    (Mix (Pi, 2 • Lambda)).prime = Mix (2 • Lambda, Pi) := by
+  rw [prime_Mix_eq parityDecomp_mem_Pi parityDecomp_mem_smul_Lambda,
+    prime_Pi, variety_prime_smul, prime_Lambda]
+
 lemma Label.prime_eq {i : Fin 5} :
-    Variety.prime (Label i) = Label (Label.prime i) := by
+    Variety.prime (Label i) = Label (Label.prime i) :=
   match i with
-  | 0 => exact prime_Pi
-  | 1 =>
-    change (Mix (Lambda, Pi)).prime = Mix (Pi, Lambda)
-    rw [prime_Mix_eq parityDecomp_mem_Lambda
-      parityDecomp_mem_Pi, prime_Pi, prime_Lambda]
-  | 2 =>
-    change (Mix (Pi, Lambda)).prime = Mix (Lambda, Pi)
-    rw [prime_Mix_eq parityDecomp_mem_Pi
-      parityDecomp_mem_Lambda, prime_Pi, prime_Lambda]
-  | 3 =>
-    change (Mix (2 • Lambda, Pi)).prime = Mix (Pi, 2 • Lambda)
-    rw [prime_Mix_eq parityDecomp_mem_smul_Lambda
-      parityDecomp_mem_Pi, prime_Pi, variety_prime_smul, prime_Lambda]
-  | 4 =>
-    change (Mix (Pi, 2 • Lambda)).prime = Mix (2 • Lambda, Pi)
-    rw [prime_Mix_eq parityDecomp_mem_Pi
-      parityDecomp_mem_smul_Lambda, prime_Pi, variety_prime_smul, prime_Lambda]
+  | 0 => prime_Pi
+  | 1 => prime_Mix_Lambda_Pi
+  | 2 => prime_Mix_Pi_Lambda
+  | 3 => prime_Mix_2Lambda_Pi
+  | 4 => prime_Mix_Pi_2Lambda
 
 lemma Label.prime_eq_iterate {i : Fin 5} {k : ℕ} :
     Label (prime^[k] i) = Variety.prime^[k] (Label i) := by
@@ -75,22 +79,6 @@ lemma Label.prime_iterate_zero {k : ℕ} : Label.prime^[k] 0 = 0 :=
 
 section MixOrder
 
-lemma prime_Mix_Pi_Lambda : (Mix (Pi, Lambda)).prime = Mix (Lambda, Pi) := by
-  rw [prime_Mix_eq parityDecomp_mem_Pi parityDecomp_mem_Lambda, prime_Pi, prime_Lambda]
-
-lemma prime_Mix_Lambda_Pi : (Mix (Lambda, Pi)).prime = Mix (Pi, Lambda) := by
-  rw [prime_Mix_eq parityDecomp_mem_Lambda parityDecomp_mem_Pi, prime_Pi, prime_Lambda]
-
-lemma prime_Mix_2Lambda_Pi :
-    (Mix (2 • Lambda, Pi)).prime = Mix (Pi, 2 • Lambda) := by
-  rw [prime_Mix_eq parityDecomp_mem_smul_Lambda parityDecomp_mem_Pi,
-    prime_Pi, variety_prime_smul, prime_Lambda]
-
-lemma prime_Mix_Pi_2Lambda :
-    (Mix (Pi, 2 • Lambda)).prime = Mix (2 • Lambda, Pi) := by
-  rw [prime_Mix_eq parityDecomp_mem_Pi parityDecomp_mem_smul_Lambda,
-    prime_Pi, variety_prime_smul, prime_Lambda]
-
 /-- The dominance order makes `Mix (Pi, Lambda)` and `Mix (Lambda, Pi)` a
 sigma-pair: `prime` swaps them and each is rank-one signature injective. -/
 lemma sigmaPair_Mix_Pi_Lambda :
@@ -114,14 +102,14 @@ end MixOrder
 
 end Variety
 
-instance : PartialOrder (Variety.Mix (Variety.Pi, Variety.Lambda)) :=
+instance : PartialOrder (Variety.Mix (.Pi, .Lambda)) :=
   Variety.SigmaUnique.partialOrder Variety.sigmaPair_Mix_Pi_Lambda.sigmaUnique_left
 
-instance : PartialOrder (Variety.Mix (Variety.Lambda, Variety.Pi)) :=
+instance : PartialOrder (Variety.Mix (.Lambda, .Pi)) :=
   Variety.SigmaUnique.partialOrder Variety.sigmaPair_Mix_Pi_Lambda.sigmaUnique_right
 
-noncomputable instance : PartialOrder (Variety.Mix (2 • Variety.Lambda, Variety.Pi)) :=
+noncomputable instance : PartialOrder (Variety.Mix (2 • .Lambda, .Pi)) :=
   Variety.SigmaUnique.partialOrder Variety.sigmaPair_Mix_2Lambda_Pi.sigmaUnique_left
 
-noncomputable instance : PartialOrder (Variety.Mix (Variety.Pi, 2 • Variety.Lambda)) :=
+noncomputable instance : PartialOrder (Variety.Mix (.Pi, 2 • .Lambda)) :=
   Variety.SigmaUnique.partialOrder Variety.sigmaPair_Mix_2Lambda_Pi.sigmaUnique_right

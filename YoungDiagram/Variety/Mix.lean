@@ -53,23 +53,20 @@ lemma evenPart_below_one (X : Chromosome) : X.evenPart.below 1 = 0 := by
   ext g
   rw [Finsupp.zero_apply, below_def, Finsupp.filter_apply]
   split_ifs with hg
-  · have hrank : g.rank = 1 := Nat.le_antisymm hg g.rank_pos
-    simp only [evenPart, AddMonoidHom.coe_mk, ZeroHom.coe_mk, Finsupp.filter_apply]
-    exact if_neg (hrank ▸ Nat.not_even_one)
+  · simp only [evenPart, AddMonoidHom.coe_mk, ZeroHom.coe_mk, Finsupp.filter_apply]
+    exact if_neg ((Nat.le_antisymm hg g.rank_pos) ▸ Nat.not_even_one)
   · rfl
 
 lemma below_one_eq_oddPart_below_one (X : Chromosome) :
     X.below 1 = X.oddPart.below 1 := by
-  conv_lhs => rw [parity_decomposition X]
-  rw [map_add, evenPart_below_one, add_zero]
+  nth_rw 1 [parity_decomposition X, map_add, evenPart_below_one, add_zero]
 
 /-- The rank-1 part of `X ∈ Mix (v₁, v₂)` lives entirely in `X.oddPart ∈ v₂`,
 so rank-one signature injectivity of `Mix (v₁, v₂)` follows from that of `v₂`. -/
 lemma rankOneSigInj_Mix_of_snd {v₁ v₂ : Variety} (h : RankOneSigInj v₂) :
     RankOneSigInj (Mix (v₁, v₂)) := by
   intro X Y hX hY hsig
-  rw [below_one_eq_oddPart_below_one X, below_one_eq_oddPart_below_one Y]
-  rw [below_one_eq_oddPart_below_one X, below_one_eq_oddPart_below_one Y] at hsig
+  rw [below_one_eq_oddPart_below_one X, below_one_eq_oddPart_below_one Y] at hsig ⊢
   exact h (mem_Mix_iff.1 hX).2 (mem_Mix_iff.1 hY).2 hsig
 
 end Mix

@@ -215,7 +215,7 @@ rank-1 parts share a signature have equal rank-1 parts.
 -/
 def RankOneSigInj (v : Variety) : Prop :=
   ∀ {X Y : Chromosome}, X ∈ v → Y ∈ v →
-    signature (X.below 1) = signature (Y.below 1) → X.below 1 = Y.below 1
+    (X.below 1).signature = (Y.below 1).signature → X.below 1 = Y.below 1
 
 /--
 A pair `(v₁, v₂)` of varieties is a sigma-pair if `Chromosome.prime` swaps them
@@ -229,7 +229,7 @@ structure SigmaPair (v₁ v₂ : Variety) : Prop where
   rankOne_left : RankOneSigInj v₁
   rankOne_right : RankOneSigInj v₂
 
-lemma SigmaPair.symm (h : SigmaPair v₁ v₂) : SigmaPair v₂ v₁ where
+def SigmaPair.symm (h : SigmaPair v₁ v₂) : SigmaPair v₂ v₁ where
   prime_left := h.prime_right
   prime_right := h.prime_left
   rankOne_left := h.rankOne_right
@@ -241,7 +241,7 @@ sequence (the signature of every prime iterate).
 -/
 def SigmaUnique (v : Variety) : Prop :=
   ∀ {A B : Chromosome}, A ∈ v → B ∈ v →
-    (∀ k, signature (Chromosome.prime^[k] A) = signature (Chromosome.prime^[k] B)) → A = B
+    (∀ k, (.prime^[k] A).signature = (.prime^[k] B).signature) → A = B
 
 namespace RankOneSigInj
 
@@ -252,9 +252,9 @@ lemma mono {v₁ v₂ : Variety} (h : v₁ ≤ v₂) (hv : RankOneSigInj v₂) :
 lemma below_one_eq_of_sig_eq (hv : RankOneSigInj v) {A B : Chromosome}
     (hA : A ∈ v) (hB : B ∈ v) (hsig : A.signature = B.signature)
     (habove : A.above 1 = B.above 1) : A.below 1 = B.below 1 := by
-  apply hv hA hB
-  rwa [congr_arg signature (rank_decomposition A 1), congr_arg signature
-    (rank_decomposition B 1), map_add, map_add, congr_arg signature habove,
+  refine hv hA hB ?_
+  rwa [congr_arg signature (A.rank_decomposition 1), congr_arg signature
+    (B.rank_decomposition 1), map_add, map_add, congr_arg signature habove,
     add_right_cancel_iff] at hsig
 
 lemma eq_of_prime_eq_sig_eq (hv : RankOneSigInj v) {A B : Chromosome}
@@ -269,23 +269,20 @@ end RankOneSigInj
 namespace SigmaPair
 
 lemma sigmaUnique_left (h : SigmaPair v₁ v₂) : SigmaUnique v₁ := by
-  intro A B hA hB heq
   suffices key : ∀ n, ∀ A B : Chromosome,
-      max A.maxRank B.maxRank ≤ n →
+      (A.maxRank ⊔ B.maxRank) ≤ n →
       ((A ∈ v₁ ∧ B ∈ v₁) ∨ (A ∈ v₂ ∧ B ∈ v₂)) →
-      (∀ k, signature (Chromosome.prime^[k] A) = signature (Chromosome.prime^[k] B)) →
-      A = B by
-    exact key _ _ _ le_rfl (Or.inl ⟨hA, hB⟩) heq
+      (∀ k, (.prime^[k] A).signature = (.prime^[k] B).signature) →
+      A = B from fun _ _ hA hB heq ↦ key _ _ _ le_rfl (Or.inl ⟨hA, hB⟩) heq
   intro n
   induction n with
   | zero =>
-    intro A B hn _ _
+    intro _ _ hn _ _
     obtain ⟨hAr, hBr⟩ := max_le_iff.1 hn
     rw [maxRank_eq_zero (Nat.le_zero.1 hAr), maxRank_eq_zero (Nat.le_zero.1 hBr)]
   | succ n ih =>
     intro A B hn hAB hk
-    have hsig0 : signature A = signature B := by
-      simpa only [Function.iterate_zero, id_eq] using hk 0
+    have hsig0 : signature A = signature B := hk 0
     by_cases hA0 : A = 0
     · rw [hA0, map_zero] at hsig0
       rw [hA0, signature_eq_zero hsig0.symm]

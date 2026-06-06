@@ -119,7 +119,7 @@ section order
 open Chromosome
 
 /-- The rank-1 part of an element of `Variety.Lambda` is determined by its signature. -/
-lemma rankOneSigInj_Lambda : Variety.RankOneSigInj Variety.Lambda := by
+lemma rankOneSigInj_Lambda : Variety.RankOneSigInj .Lambda := by
   intro X Y hX hY h
   ext g
   by_cases hg : ¬ g.rank ≤ 1
@@ -129,12 +129,10 @@ lemma rankOneSigInj_Lambda : Variety.RankOneSigInj Variety.Lambda := by
       filter_apply_pos _ Y (Nat.le_of_eq hg)]
     rw [IsNonPolarized_signature hX, IsNonPolarized_signature hY] at h
     by_cases htype : g.type = .NonPolarized
-    · have hxy : (X ⟨1, .NonPolarized, le_rfl⟩ : ℚ) =
-          (Y ⟨1, .NonPolarized, le_rfl⟩ : ℚ) := by
-        have h1 := (Prod.ext_iff.1 h).1
-        linarith
-      have heqg : g = (⟨1, .NonPolarized, le_rfl⟩ : Gene) := Gene.ext hg htype
-      rw [heqg]; exact_mod_cast hxy
+    · have hxy : X ⟨1, .NonPolarized, le_rfl⟩ = Y ⟨1, .NonPolarized, le_rfl⟩ := by
+        simpa only [Prod.mk.injEq, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, div_left_inj',
+          Nat.cast_inj, and_self] using h
+      convert hxy
     · rw [Finsupp.notMem_support_iff.1 (fun h ↦ htype <| IsNonPolarized_def'.1 hX g h),
         Finsupp.notMem_support_iff.1 (fun h ↦ htype <| IsNonPolarized_def'.1 hY g h)]
 
