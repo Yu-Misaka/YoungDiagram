@@ -36,7 +36,7 @@ lemma mutation_type12_ne : type12X ≠ type12Y := by
   have h_n' : 2 * n + 4 ≠ 0 := by omega
   simp only [Gene.ofRank_def, h_m, h_n, h_m', h_n', ↓reduceDIte, Finsupp.coe_add,
     Pi.add_apply, Finsupp.single_eq_same, Finsupp.single_apply, Gene.mk.injEq,
-    Nat.reduceEqDiff, Nat.add_left_cancel_iff, false_and, and_true] at h
+    Nat.reduceEqDiff, Nat.add_left_cancel_iff, and_true] at h
   split_ifs at h <;> omega
 
 omit h_le in
@@ -131,7 +131,7 @@ lemma mutation_type12_le : type12X ≤ type12Y := by
         have eq3 : 2 * n + 2 - k = 0 := by omega
         have eq4 : 2 * n + 4 - k = 0 := by omega
         rw [eq1, eq2, eq3, eq4]
-        simp only [Gene.ofRank_zero, map_zero, zero_add, add_zero]
+        simp only [Gene.ofRank_zero, map_zero, add_zero]
         exact le_refl _
 
 end type12_isMutation
@@ -146,34 +146,6 @@ open Variety
 
 namespace MixPi2Lambda
 
-omit h_le in
-private lemma evenPart_ofRank_even {k : ℕ} {ε : GeneType} (hk : k ≠ 0) (he : Even k) :
-    (Gene.ofRank k ε).evenPart = Gene.ofRank k ε := by
-  rw [Gene.ofRank_def, dif_neg hk]
-  exact Finsupp.filter_single_of_pos _ he
-
-omit h_le in
-private lemma evenPart_ofRank_odd {k : ℕ} {ε : GeneType} (ho : ¬ Even k) :
-    (Gene.ofRank k ε).evenPart = 0 := by
-  rcases eq_or_ne k 0 with rfl | hk
-  · rw [Gene.ofRank_zero, map_zero]
-  · rw [Gene.ofRank_def, dif_neg hk]
-    exact Finsupp.filter_single_of_neg _ ho
-
-omit h_le in
-private lemma oddPart_ofRank_even {k : ℕ} {ε : GeneType} (he : Even k) :
-    (Gene.ofRank k ε).oddPart = 0 := by
-  rcases eq_or_ne k 0 with rfl | hk
-  · rw [Gene.ofRank_zero, map_zero]
-  · rw [Gene.ofRank_def, dif_neg hk]
-    exact Finsupp.filter_single_of_neg _ (Nat.not_odd_iff_even.2 he)
-
-omit h_le in
-private lemma oddPart_ofRank_odd {k : ℕ} {ε : GeneType} (hk : k ≠ 0) (ho : ¬ Even k) :
-    (Gene.ofRank k ε).oddPart = Gene.ofRank k ε := by
-  rw [Gene.ofRank_def, dif_neg hk]
-  exact Finsupp.filter_single_of_pos _ (Nat.not_even_iff_odd.1 ho)
-
 variable (hε : ε ≠ .NonPolarized)
 
 include h_le
@@ -186,15 +158,12 @@ noncomputable def X12 : Mix (Pi, 2 • Lambda) := by
     Gene.ofRank (2 * m + 2) GeneType.Negative +
     Gene.ofRank (2 * n + 2) ε, ?_⟩
   rw [mem_Mix_iff, map_add, map_add, map_add, map_add]
-  rw [evenPart_ofRank_even (k := 2 * m + 2) (ε := GeneType.Positive)
-      (by omega) ⟨m + 1, by ring⟩]
-  rw [evenPart_ofRank_even (k := 2 * m + 2) (ε := GeneType.Negative)
-      (by omega) ⟨m + 1, by ring⟩]
-  rw [evenPart_ofRank_even (k := 2 * n + 2) (ε := ε)
-      (by omega) ⟨n + 1, by ring⟩]
-  rw [oddPart_ofRank_even (k := 2 * m + 2) (ε := GeneType.Positive) ⟨m + 1, by ring⟩]
-  rw [oddPart_ofRank_even (k := 2 * m + 2) (ε := GeneType.Negative) ⟨m + 1, by ring⟩]
-  rw [oddPart_ofRank_even (k := 2 * n + 2) (ε := ε) ⟨n + 1, by ring⟩]
+  rw [evenPart_ofRank, if_pos (by grind),
+    evenPart_ofRank, if_pos (by grind),
+    evenPart_ofRank, if_pos (by grind),
+    oddPart_ofRank, if_pos (by grind),
+    oddPart_ofRank, if_pos (by grind),
+    oddPart_ofRank, if_pos (by grind)]
   simp only [add_zero]
   refine ⟨?_, zero_mem _⟩
   rw [mem_Pi_iff_add, mem_Pi_iff_add, mem_Pi_iff, mem_Pi_iff, mem_Pi_iff,
@@ -225,13 +194,10 @@ noncomputable def Y12 : Mix (Pi, 2 • Lambda) := by
     Gene.ofRank (2 * m + 1) GeneType.NonPolarized +
     Gene.ofRank (2 * n + 4) ε, ?_⟩
   rw [mem_Mix_iff, map_add, map_add, map_add, map_add]
-  rw [evenPart_ofRank_odd (k := 2 * m + 1) (ε := GeneType.NonPolarized)
-      (by rw [Nat.not_even_iff_odd]; exact ⟨m, rfl⟩)]
-  rw [evenPart_ofRank_even (k := 2 * n + 4) (ε := ε)
-      (by omega) ⟨n + 2, by ring⟩]
-  rw [oddPart_ofRank_odd (k := 2 * m + 1) (ε := GeneType.NonPolarized) (by omega)
-      (by rw [Nat.not_even_iff_odd]; exact ⟨m, rfl⟩)]
-  rw [oddPart_ofRank_even (k := 2 * n + 4) (ε := ε) ⟨n + 2, by ring⟩]
+  rw [evenPart_ofRank, if_neg (by grind),
+    evenPart_ofRank, if_pos (by grind),
+    oddPart_ofRank, if_neg (by grind),
+    oddPart_ofRank, if_pos (by grind)]
   simp only [zero_add, add_zero]
   refine ⟨?_, ?_⟩
   · rw [mem_Pi_iff, IsPolarized_ofRank (k := 2 * n + 4) (by omega)]

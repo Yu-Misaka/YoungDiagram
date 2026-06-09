@@ -37,7 +37,7 @@ lemma mutation_type11_ne : type11X ≠ type11Y := by
   have h_n' : 2 * n + 4 ≠ 0 := by omega
   simp only [Gene.ofRank_def, h_m, h_n, h_m', h_n', ↓reduceDIte, Finsupp.coe_add,
     Pi.add_apply, Finsupp.single_eq_same, Finsupp.single_apply, Gene.mk.injEq,
-    Nat.reduceEqDiff, Nat.add_left_cancel_iff, false_and, and_true] at h
+    Nat.reduceEqDiff, Nat.add_left_cancel_iff, false_and] at h
   split_ifs at h <;> omega
 
 omit h_le in
@@ -146,7 +146,8 @@ lemma mutation_type11_le : type11X ≤ type11Y := by
       · rw [heq, Gene.ofRank_zero, map_zero, zero_add]
       · rw [heq, signature_ofRank_nonPolarized, Prod.mk_add_mk]
         push_cast
-        refine ⟨?_, ?_⟩ <;> simp <;> linarith only []
+        refine ⟨?_, ?_⟩ <;> simp only [Prod.fst_zero, one_div,
+          nonneg_add_self_iff, inv_nonneg, Prod.snd_zero, Nat.ofNat_nonneg]
 
 end type11_isMutation
 
@@ -160,34 +161,6 @@ open Variety
 
 namespace Mix2LambdaPi
 
-omit h_le in
-private lemma evenPart_ofRank_even {k : ℕ} {ε : GeneType} (hk : k ≠ 0) (he : Even k) :
-    (Gene.ofRank k ε).evenPart = Gene.ofRank k ε := by
-  rw [Gene.ofRank_def, dif_neg hk]
-  exact Finsupp.filter_single_of_pos _ he
-
-omit h_le in
-private lemma evenPart_ofRank_odd {k : ℕ} {ε : GeneType} (ho : ¬ Even k) :
-    (Gene.ofRank k ε).evenPart = 0 := by
-  rcases eq_or_ne k 0 with rfl | hk
-  · rw [Gene.ofRank_zero, map_zero]
-  · rw [Gene.ofRank_def, dif_neg hk]
-    exact Finsupp.filter_single_of_neg _ ho
-
-omit h_le in
-private lemma oddPart_ofRank_even {k : ℕ} {ε : GeneType} (he : Even k) :
-    (Gene.ofRank k ε).oddPart = 0 := by
-  rcases eq_or_ne k 0 with rfl | hk
-  · rw [Gene.ofRank_zero, map_zero]
-  · rw [Gene.ofRank_def, dif_neg hk]
-    exact Finsupp.filter_single_of_neg _ (Nat.not_odd_iff_even.2 he)
-
-omit h_le in
-private lemma oddPart_ofRank_odd {k : ℕ} {ε : GeneType} (hk : k ≠ 0) (ho : ¬ Even k) :
-    (Gene.ofRank k ε).oddPart = Gene.ofRank k ε := by
-  rw [Gene.ofRank_def, dif_neg hk]
-  exact Finsupp.filter_single_of_pos _ (Nat.not_even_iff_odd.1 ho)
-
 variable (hε : ε ≠ .NonPolarized)
 
 include h_le
@@ -199,25 +172,14 @@ noncomputable def X11 : Mix (2 • Lambda, Pi) := by
   refine ⟨Gene.ofRank (2 * m + 3) ε +
     Gene.ofRank (2 * n + 3) GeneType.Positive +
     Gene.ofRank (2 * n + 3) GeneType.Negative, ?_⟩
-  rw [mem_Mix_iff, map_add, map_add, map_add, map_add]
-  rw [evenPart_ofRank_odd (k := 2 * m + 3) (ε := ε)
-      (by rw [Nat.not_even_iff_odd]; exact ⟨m + 1, by ring⟩)]
-  rw [evenPart_ofRank_odd (k := 2 * n + 3) (ε := GeneType.Positive)
-      (by rw [Nat.not_even_iff_odd]; exact ⟨n + 1, by ring⟩)]
-  rw [evenPart_ofRank_odd (k := 2 * n + 3) (ε := GeneType.Negative)
-      (by rw [Nat.not_even_iff_odd]; exact ⟨n + 1, by ring⟩)]
-  rw [oddPart_ofRank_odd (k := 2 * m + 3) (ε := ε) (by omega)
-      (by rw [Nat.not_even_iff_odd]; exact ⟨m + 1, by ring⟩)]
-  rw [oddPart_ofRank_odd (k := 2 * n + 3) (ε := GeneType.Positive) (by omega)
-      (by rw [Nat.not_even_iff_odd]; exact ⟨n + 1, by ring⟩)]
-  rw [oddPart_ofRank_odd (k := 2 * n + 3) (ε := GeneType.Negative) (by omega)
-      (by rw [Nat.not_even_iff_odd]; exact ⟨n + 1, by ring⟩)]
-  simp only [zero_add, add_zero]
+  rw [mem_Mix_iff, map_add, map_add, map_add, map_add, evenPart_ofRank, if_neg (by grind),
+    evenPart_ofRank, if_neg (by grind), evenPart_ofRank, if_neg (by grind),
+    oddPart_ofRank, if_neg (by grind), oddPart_ofRank, if_neg (by grind),
+    oddPart_ofRank, if_neg (by grind)]
   refine ⟨zero_mem _, ?_⟩
   rw [mem_Pi_iff_add, mem_Pi_iff_add, mem_Pi_iff, mem_Pi_iff, mem_Pi_iff,
-    IsPolarized_ofRank (k := 2 * m + 3) (by omega),
-    IsPolarized_ofRank (k := 2 * n + 3) (by omega),
-    IsPolarized_ofRank (k := 2 * n + 3) (by omega)]
+    IsPolarized_ofRank (by omega), IsPolarized_ofRank (by omega),
+    IsPolarized_ofRank (by omega)]
   exact ⟨⟨hε, by decide⟩, by decide⟩
 
 lemma X11_eq : (X11 h_le hε).1 =
@@ -237,21 +199,16 @@ noncomputable def Y11 : Mix (2 • Lambda, Pi) := by
   refine ⟨Gene.ofRank (2 * m + 1) ε +
     Gene.ofRank (2 * n + 4) GeneType.NonPolarized +
     Gene.ofRank (2 * n + 4) GeneType.NonPolarized, ?_⟩
-  rw [mem_Mix_iff, map_add, map_add, map_add, map_add]
-  rw [evenPart_ofRank_odd (k := 2 * m + 1) (ε := ε)
-      (by rw [Nat.not_even_iff_odd]; exact ⟨m, rfl⟩)]
-  rw [evenPart_ofRank_even (k := 2 * n + 4) (ε := GeneType.NonPolarized)
-      (by omega) ⟨n + 2, by ring⟩]
-  rw [oddPart_ofRank_odd (k := 2 * m + 1) (ε := ε) (by omega)
-      (by rw [Nat.not_even_iff_odd]; exact ⟨m, rfl⟩)]
-  rw [oddPart_ofRank_even (k := 2 * n + 4) (ε := GeneType.NonPolarized) ⟨n + 2, by ring⟩]
+  rw [mem_Mix_iff, map_add, map_add, map_add, map_add,
+    evenPart_ofRank, if_neg (by grind), evenPart_ofRank, if_pos (by grind),
+    oddPart_ofRank, if_neg (by grind), oddPart_ofRank, if_pos (by grind)]
   simp only [zero_add, add_zero]
   refine ⟨?_, ?_⟩
   · rw [AddSubmonoid.mem_smul_pointwise_iff_exists]
     refine ⟨Gene.ofRank (2 * n + 4) GeneType.NonPolarized, ?_, ?_⟩
-    · rw [mem_Lambda_iff, IsNonPolarized_ofRank (k := 2 * n + 4) (by omega)]
+    · rw [mem_Lambda_iff, IsNonPolarized_ofRank (by omega)]
     · rw [two_smul]
-  · rw [mem_Pi_iff, IsPolarized_ofRank (k := 2 * m + 1) (by omega)]
+  · rw [mem_Pi_iff, IsPolarized_ofRank (by omega)]
     exact hε
 
 lemma Y11_eq : (Y11 h_le hε).1 =
@@ -262,7 +219,7 @@ lemma Y11_eq : (Y11 h_le hε).1 =
 @[simp] lemma neg_Y11 :
     - (Y11 h_le hε) = Y11 h_le (GeneType.neg_ne_nonPolarized_iff.1 hε) := by
   apply Subtype.ext
-  rw [Mix.tLambda_Pi_neg_val, Y11_eq, Y11_eq, Chromosome.neg_add, Chromosome.neg_add]
+  rw [Mix.tLambda_Pi_neg_val, Y11_eq, Y11_eq, neg_add, neg_add]
   simp only [neg_ofRank, GeneType.neg_nonPolarized]
 
 end type11

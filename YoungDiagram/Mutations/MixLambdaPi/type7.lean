@@ -88,34 +88,6 @@ open Variety
 
 namespace MixLambdaPi
 
-omit h_le in
-private lemma evenPart_ofRank_even {k : ℕ} {ε : GeneType} (hk : k ≠ 0) (he : Even k) :
-    (Gene.ofRank k ε).evenPart = Gene.ofRank k ε := by
-  rw [Gene.ofRank_def, dif_neg hk]
-  exact Finsupp.filter_single_of_pos _ he
-
-omit h_le in
-private lemma evenPart_ofRank_odd {k : ℕ} {ε : GeneType} (ho : ¬ Even k) :
-    (Gene.ofRank k ε).evenPart = 0 := by
-  rcases eq_or_ne k 0 with rfl | hk
-  · rw [Gene.ofRank_zero, map_zero]
-  · rw [Gene.ofRank_def, dif_neg hk]
-    exact Finsupp.filter_single_of_neg _ ho
-
-omit h_le in
-private lemma oddPart_ofRank_even {k : ℕ} {ε : GeneType} (he : Even k) :
-    (Gene.ofRank k ε).oddPart = 0 := by
-  rcases eq_or_ne k 0 with rfl | hk
-  · rw [Gene.ofRank_zero, map_zero]
-  · rw [Gene.ofRank_def, dif_neg hk]
-    exact Finsupp.filter_single_of_neg _ (Nat.not_odd_iff_even.2 he)
-
-omit h_le in
-private lemma oddPart_ofRank_odd {k : ℕ} {ε : GeneType} (hk : k ≠ 0) (ho : ¬ Even k) :
-    (Gene.ofRank k ε).oddPart = Gene.ofRank k ε := by
-  rw [Gene.ofRank_def, dif_neg hk]
-  exact Finsupp.filter_single_of_pos _ (Nat.not_even_iff_odd.1 ho)
-
 variable (hε : ε ≠ .NonPolarized)
 
 include h_le
@@ -126,20 +98,12 @@ noncomputable def X7 : Mix (Lambda, Pi) := by
   have _ := h_le
   have _ := hε
   refine ⟨Gene.ofRank (2 * m + 1) ε + Gene.ofRank (2 * n + 1) (- ε), ?_⟩
-  rw [mem_Mix_iff, map_add, map_add,
-    evenPart_ofRank_odd (k := 2 * m + 1)
-      (by rw [Nat.not_even_iff_odd]; exact ⟨m, rfl⟩),
-    evenPart_ofRank_odd (k := 2 * n + 1)
-      (by rw [Nat.not_even_iff_odd]; exact ⟨n, rfl⟩),
-    oddPart_ofRank_odd (k := 2 * m + 1) (by omega)
-      (by rw [Nat.not_even_iff_odd]; exact ⟨m, rfl⟩),
-    oddPart_ofRank_odd (k := 2 * n + 1) (by omega)
-      (by rw [Nat.not_even_iff_odd]; exact ⟨n, rfl⟩),
-    zero_add]
+  rw [mem_Mix_iff, map_add, map_add, evenPart_ofRank, if_neg (by grind),
+    evenPart_ofRank, if_neg (by grind), oddPart_ofRank, if_neg (by grind),
+    oddPart_ofRank, if_neg (by grind), zero_add]
   refine ⟨zero_mem _, ?_⟩
   rw [mem_Pi_iff_add, mem_Pi_iff, mem_Pi_iff,
-    IsPolarized_ofRank (k := 2 * m + 1) (by omega),
-    IsPolarized_ofRank (k := 2 * n + 1) (by omega)]
+    IsPolarized_ofRank (by omega), IsPolarized_ofRank (by omega)]
   exact ⟨hε, by rwa [ne_eq, ← GeneType.neg_eq_nonPolarized_iff]⟩
 
 lemma X7_eq : (X7 h_le hε).1 =
@@ -154,22 +118,18 @@ noncomputable def Y7 : Mix (Lambda, Pi) := by
   have _ := h_le
   refine ⟨Gene.ofRank (2 * m) GeneType.NonPolarized +
     Gene.ofRank (2 * n + 2) GeneType.NonPolarized, ?_⟩
-  rw [mem_Mix_iff, map_add, map_add,
-    evenPart_ofRank_even (k := 2 * n + 2) (by omega) ⟨n + 1, by ring⟩,
-    oddPart_ofRank_even (k := 2 * n + 2) ⟨n + 1, by ring⟩,
-    add_zero]
+  rw [mem_Mix_iff, map_add, map_add, evenPart_ofRank, if_pos (by grind),
+    oddPart_ofRank, if_pos (by grind), evenPart_ofRank, if_pos (by grind),
+    oddPart_ofRank, if_pos (by grind), add_zero]
   match m with
   | 0 =>
-    rw [Nat.mul_zero, Gene.ofRank_zero, map_zero, map_zero, zero_add]
+    rw [Nat.mul_zero, Gene.ofRank_zero, zero_add]
     refine ⟨?_, zero_mem _⟩
-    rw [mem_Lambda_iff, IsNonPolarized_ofRank (k := 2 * n + 2) (by omega)]
+    rw [mem_Lambda_iff, IsNonPolarized_ofRank (by omega)]
   | m + 1 =>
-    rw [evenPart_ofRank_even (k := 2 * (m + 1)) (by omega) ⟨m + 1, by ring⟩,
-      oddPart_ofRank_even (k := 2 * (m + 1)) ⟨m + 1, by ring⟩]
     refine ⟨?_, zero_mem _⟩
     rw [mem_Lambda_iff_add, mem_Lambda_iff, mem_Lambda_iff,
-      IsNonPolarized_ofRank (k := 2 * (m + 1)) (by omega),
-      IsNonPolarized_ofRank (k := 2 * n + 2) (by omega)]
+      IsNonPolarized_ofRank (by omega), IsNonPolarized_ofRank (by omega)]
     exact ⟨rfl, rfl⟩
 
 lemma Y7_eq : (Y7 h_le).1 =

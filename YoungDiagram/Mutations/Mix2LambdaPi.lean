@@ -63,10 +63,10 @@ lemma Primitive.isMutation {X Y : Mix (2 • Lambda, Pi)} (h : Primitive X Y) :
       mutation_type12_ne h_le, mutation_type12_signature_eq h_le⟩
   | type13 h_le =>
     exact ⟨mutation_type13_le h_le,
-      mutation_type13_ne h_le, mutation_type13_signature_eq h_le⟩
+      mutation_type13_ne, mutation_type13_signature_eq⟩
   | type14 ε hε h_le =>
     exact ⟨mutation_type14_le h_le,
-      mutation_type14_ne h_le, mutation_type14_signature_eq h_le⟩
+      mutation_type14_ne, mutation_type14_signature_eq⟩
   | type15 ε hε h_le =>
     exact ⟨mutation_type15_le h_le,
       mutation_type15_ne h_le, mutation_type15_signature_eq h_le⟩
