@@ -406,7 +406,7 @@ private lemma lift_iterate_mem_smul_Lambda {Y : Chromosome} {k n : ℕ}
   obtain ⟨Z, hZ, hZY : n • Z = Y⟩ := hY
   refine ⟨Chromosome.lift^[k] Z, lift_iterate_mem_Lambda hZ, ?_⟩
   rw [← hZY]
-  show n • Chromosome.lift^[k] Z = Chromosome.lift^[k] (n • Z)
+  change n • Chromosome.lift^[k] Z = Chromosome.lift^[k] (n • Z)
   induction k with
   | zero => rfl
   | succ k ih => rw [Function.iterate_succ_apply', Function.iterate_succ_apply', ← ih, map_nsmul]
