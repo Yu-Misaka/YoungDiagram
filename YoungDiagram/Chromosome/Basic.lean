@@ -143,7 +143,7 @@ instance : InvolutiveNeg Chromosome where
 @[simp] lemma neg_ofRank {n : ℕ} {ε : GeneType} :
     - (Gene.ofRank n ε) = Gene.ofRank n (-ε) := by
   rw [Gene.ofRank_def, Gene.ofRank_def]
-  split_ifs with h
+  split_ifs
   · exact neg_zero
   · exact neg_single
 

@@ -56,6 +56,18 @@ lemma oddPart_single {g : Gene} : oddPart (single g 1) =
   · exact filter_single_of_neg _ <| Nat.not_odd_iff_even.2 h
   · exact filter_single_of_pos _ <| Nat.not_even_iff_odd.1 h
 
+lemma evenPart_ofRank {k : ℕ} {ε : GeneType} : (Gene.ofRank k ε).evenPart =
+    if Even k then Gene.ofRank k ε else 0 := by
+  by_cases hk : k = 0
+  · rw [hk, Gene.ofRank_zero, map_zero]; rfl
+  · rw [Gene.ofRank_eq_gene' hk, evenPart_single]
+
+lemma oddPart_ofRank {k : ℕ} {ε : GeneType} : (Gene.ofRank k ε).oddPart =
+    if Even k then 0 else Gene.ofRank k ε := by
+  by_cases hk : k = 0
+  · rw [hk, Gene.ofRank_zero, map_zero]; rfl
+  · rw [Gene.ofRank_eq_gene' hk, oddPart_single]
+
 lemma evenPart_prime {X : Chromosome} : X.prime.evenPart = X.oddPart.prime := by
   induction X using Finsupp.induction
   · repeat rw [map_zero]
