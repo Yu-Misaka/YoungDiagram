@@ -1,0 +1,57 @@
+YoungDiagram/Theorem6/MixPi2Lambda/Case34NoPairRankTwoSingle.lean
+  059adc261839215f 175-706,1126-1397
+  s_163c3e833c1577::t_2aaab1542eaa4e 2
+YoungDiagram/Theorem6/MixPi2Lambda/Case34NoPairRankTwoDouble.lean
+  059adc261839215f 17-53
+YoungDiagram/Theorem6/MixPi2Lambda/Type15.lean
+  059adc261839215f 74-424,579-706
+YoungDiagram/Theorem6/MixPi2Lambda/Case34Gaps.lean
+  059adc261839215f 239-264,274,296,311,318,335,342,353
+  059adc261839215f 265-267,271-273
+  059adc261839215f 275-277,293-295
+  059adc261839215f 297-299,308-310
+  059adc261839215f 312-317
+  059adc261839215f 319-321,332-334
+  059adc261839215f 336-341
+  059adc261839215f 343-345,350-352
+  059adc261839215f 354-356
+  s_163c3e833c1577::t_e5e75cf087b5e1 268-270,278-292,300-307,322-331,346-349,357-367
+YoungDiagram/Theorem6/MixPi2Lambda/Window.lean
+  059adc261839215f 645-669
+  s_163c3e833c1577::t_623d3f740bbf28 562-612
+YoungDiagram/Theorem6/MixPi2Lambda/Case34Type17Boundary.lean
+  s_163c3e833c1577::t_a11dc7fe4d2ca8 1-298
+YoungDiagram/Theorem6/MixPi2Lambda/Type17.lean
+  s_163c3e833c1577::t_c73a0a8698b7b2 11-79
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "cdc1624e9a7f4d0ca7b1477b176d9db42a2c5419",
+  "prompts": {
+    "059adc261839215f": {
+      "agent_id": {
+        "tool": "trae",
+        "id": "6a43997717eb6ec98c7a8fdb",
+        "model": "gpt-5.5__max"
+      },
+      "human_author": "Yu-Misaka <109365723+Yu-Misaka@users.noreply.github.com>",
+      "total_additions": 19164,
+      "total_deletions": 1305,
+      "accepted_lines": 17883,
+      "overriden_lines": 0
+    }
+  },
+  "sessions": {
+    "s_163c3e833c1577": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f4f1c-f705-7522-af6b-5f8b35557338",
+        "model": "unknown"
+      },
+      "human_author": "Yu-Misaka <109365723+Yu-Misaka@users.noreply.github.com>"
+    }
+  },
+  "attestation_metadata": {},
+  "remote_transcripts": {}
+}
