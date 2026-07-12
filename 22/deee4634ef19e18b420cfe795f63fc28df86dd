@@ -1,0 +1,27 @@
+YoungDiagram/Theorem6/MixPi2Lambda/Case34NoPairRankTwoDoubleFallback.lean
+  s_163c3e833c1577::t_4a76813e8d7788 1-156
+YoungDiagram/Theorem6/MixPi2Lambda/Case34NoPairSolver.lean
+  s_163c3e833c1577::t_0897db4730656e 6,20-147,150,177-206,208-237
+YoungDiagram/Theorem6/MixPi2Lambda/Case34PairDouble.lean
+  s_163c3e833c1577::t_147814db075800 1-86
+YoungDiagram/Theorem6/MixPi2Lambda/Case34PairSplit.lean
+  s_163c3e833c1577::t_78c05ccc84cd0d 1-91
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "22deee4634ef19e18b420cfe795f63fc28df86dd",
+  "prompts": {},
+  "sessions": {
+    "s_163c3e833c1577": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f4f1c-f705-7522-af6b-5f8b35557338",
+        "model": "unknown"
+      },
+      "human_author": "Yu-Misaka <109365723+Yu-Misaka@users.noreply.github.com>"
+    }
+  },
+  "attestation_metadata": {},
+  "remote_transcripts": {}
+}
