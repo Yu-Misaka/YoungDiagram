@@ -1,0 +1,21 @@
+YoungDiagram/Theorem6/MixPi2Lambda/Case34NoPairRankGeFourSolver.lean
+  s_163c3e833c1577::t_285588bec27d0c 20-21,40,49,232,241,321-325,348-585,589-613,618-624
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "ea77747acabf3dd45b53adb30d78018a5b70182d",
+  "prompts": {},
+  "sessions": {
+    "s_163c3e833c1577": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f4f1c-f705-7522-af6b-5f8b35557338",
+        "model": "unknown"
+      },
+      "human_author": "Yu-Misaka <109365723+Yu-Misaka@users.noreply.github.com>"
+    }
+  },
+  "attestation_metadata": {},
+  "remote_transcripts": {}
+}
