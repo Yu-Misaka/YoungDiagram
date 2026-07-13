@@ -1,0 +1,45 @@
+YoungDiagram/Theorem6/MixPi2Lambda/Case34.lean
+  s_163c3e833c1577::t_05da4e05e8f847 1-2,23-29
+YoungDiagram/Theorem6/MixPi2Lambda/Case34PairBoundary.lean
+  s_163c3e833c1577::t_2758c55d5b0b2e 1-326
+YoungDiagram/Theorem6/MixPi2Lambda/Case34PairDoubleAlmost.lean
+  s_163c3e833c1577::t_662e460f61db7c 1-56
+YoungDiagram/Theorem6/MixPi2Lambda/Case34PairDoubleClosed.lean
+  s_163c3e833c1577::t_bc1b2216a41f43 1-82
+YoungDiagram/Theorem6/MixPi2Lambda/Case34PairDoubleSolver.lean
+  s_163c3e833c1577::t_3a2fcf60975d3e 1-46
+YoungDiagram/Theorem6/MixPi2Lambda/Case34PairDoubleWrong.lean
+  s_163c3e833c1577::t_2c13281a08097f 1-94
+YoungDiagram/Theorem6/MixPi2Lambda/Case34PairDoubleZero.lean
+  s_163c3e833c1577::t_f6432bc091e867 1-118
+YoungDiagram/Theorem6/MixPi2Lambda/Case34PairSingleBoundary.lean
+  s_163c3e833c1577::t_5a80535edce81b 1-106
+YoungDiagram/Theorem6/MixPi2Lambda/Case34PairSingleNonzero.lean
+  s_163c3e833c1577::t_44b9499b25997d 1-76
+YoungDiagram/Theorem6/MixPi2Lambda/Case34PairSingleRemainder.lean
+  s_163c3e833c1577::t_5852ea22a1865d 1-633
+YoungDiagram/Theorem6/MixPi2Lambda/Case34PairSingleSolver.lean
+  s_163c3e833c1577::t_29600916597328 1-77
+YoungDiagram/Theorem6/MixPi2Lambda/Case34PairSingleSplit.lean
+  s_163c3e833c1577::t_42f3896f39e7d7 1-84
+YoungDiagram/Theorem6/MixPi2Lambda/Case34PairSolver.lean
+  s_163c3e833c1577::t_5dfe07bd8dff09 1-36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "f5fa306c6c5e423a4932fb72b1416dd492692c17",
+  "prompts": {},
+  "sessions": {
+    "s_163c3e833c1577": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f4f1c-f705-7522-af6b-5f8b35557338",
+        "model": "unknown"
+      },
+      "human_author": "Yu-Misaka <109365723+Yu-Misaka@users.noreply.github.com>"
+    }
+  },
+  "attestation_metadata": {},
+  "remote_transcripts": {}
+}
