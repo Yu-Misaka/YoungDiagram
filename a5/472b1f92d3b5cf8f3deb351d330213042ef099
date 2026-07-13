@@ -1,0 +1,23 @@
+YoungDiagram/Mutations/Pi.lean
+  s_28f79c9ee14c37::t_09c30fb78be4e2 10-28
+YoungDiagram/Theorem6/decomp_pi.lean
+  s_28f79c9ee14c37::t_38ad48da01822b 1-111
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "a5472b1f92d3b5cf8f3deb351d330213042ef099",
+  "prompts": {},
+  "sessions": {
+    "s_28f79c9ee14c37": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f591e-725f-7bf1-a72c-dde562ddb67e",
+        "model": "unknown"
+      },
+      "human_author": "Yu-Misaka <109365723+Yu-Misaka@users.noreply.github.com>"
+    }
+  },
+  "attestation_metadata": {},
+  "remote_transcripts": {}
+}
